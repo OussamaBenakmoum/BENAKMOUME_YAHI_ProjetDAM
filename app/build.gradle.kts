@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.7.0") //[OB] Added for the async images to display from their url
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")//[OB] TO read youtube videos
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
