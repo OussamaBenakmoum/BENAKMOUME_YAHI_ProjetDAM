@@ -23,9 +23,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
@@ -40,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
@@ -47,6 +50,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -99,6 +103,7 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
+
                 }
             }
         }
@@ -136,9 +141,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier)
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Ingrédients", "Instructions", "Avis")
+    val scrollState = rememberScrollState()
 
 
-    Column (modifier = Modifier.fillMaxSize().padding(0.dp, 30.dp, 0.dp, 0.dp))
+
+    Column (modifier = Modifier.fillMaxSize().padding(0.dp, 30.dp, 0.dp, 50.dp))
     {
         Column (modifier = Modifier.fillMaxWidth().weight(0.25f))
         {
@@ -306,18 +313,18 @@ fun Greeting(name: String, modifier: Modifier = Modifier)
             thickness = DividerDefaults.Thickness, color = Color(0xFFcfcfcf)
         )
 
-        Column (modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.5f))
+        Column (modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.5f).verticalScroll(scrollState))
         {
             Spacer(modifier = Modifier.height(10.dp))
             SecondaryTabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = Color.Transparent, // Background
-                contentColor = Color.White,    // Content (text/icons)
+                containerColor = Color.Transparent,
+                contentColor = Color.White,
                 indicator = {
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(selectedTab),
                         height = 0.dp,
-                        color = Color.White // Custom indicator color/height
+                        color = Color.White
                     )
                 },
                 divider = {
@@ -325,16 +332,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier)
                 }
             )
             {
-                /*tabTitles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title) },
-                        modifier = Modifier.padding(5.dp).background(Color.Red)
-                    )
-                }
-
-                 */
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
@@ -357,55 +354,71 @@ fun Greeting(name: String, modifier: Modifier = Modifier)
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            when (selectedTab) {
+            Spacer(modifier = Modifier.height(10.dp))
+            when (selectedTab)
+            {
                 0 -> {
-                    TextField(
-                        value = "dd",
-                        onValueChange = {  },
-                        label = { Text("Nom du produit*") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(color = Color.White),
-                        singleLine = true,
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                }
-                1 -> {
-
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-
-                        TextField(
-                            value = "dsd",
-                            onValueChange = { },
-                            label = { Text("Date d’achat*") },
-                            readOnly = true,
-                            placeholder = { Text("JJ/MM/AAAA") },
-                            modifier = Modifier.weight(1f),
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        //.verticalScroll(scrollState)
                         )
+                    {
+                        ingredients.forEach { ingredient ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                            ) {
+
+                                AsyncImage(
+                                    model = ingredient.imageUrl,
+                                    contentDescription = ingredient.name,
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .padding(end = 8.dp)
+                                )
+                                // Texte quantité et nom
+                                Text(
+                                    text = "${ingredient.amount} ${ingredient.name}",
+                                    color = Color.Black
+                                )
+                            }
+                        }
                     }
 
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    TextField(
-                        value = "color",
-                        onValueChange = {  },
-                        label = { Text("Couleur") },
-                        modifier = Modifier.fillMaxWidth(),
-
+                }
+                1 ->
+                {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            //.verticalScroll(scrollState)
+                    )
+                    {
+                        Text(
+                            "For the Big Mac sauce, combine all the ingredients in a bowl, season with salt and chill until ready to use.\r\n2. To make the patties, season the mince with salt and pepper and form into 4 balls using about 1/3 cup mince each. Place each onto a square of baking paper and flatten to form into four x 15cm circles. Heat oil in a large frypan over high heat. In 2 batches, cook beef patties for 1-2 minutes each side until lightly charred and cooked through. Remove from heat and keep warm. Repeat with remaining two patties.\r\n3. Carefully slice each burger bun into three acrossways, then lightly toast.\r\n4. To assemble the burgers, spread a little Big Mac sauce over the bottom base. Top with some chopped onion, shredded lettuce, slice of cheese, beef patty and some pickle slices. Top with the middle bun layer, and spread with more Big Mac sauce, onion, lettuce, pickles, beef patty and then finish with more sauce. Top with burger lid to serve.\r\n5. After waiting half an hour for your food to settle, go for a jog."
                         )
+
+                    }
+                }
+                2->
+                {
+                    Text("Avis")
                 }
             }
+
         }
     }
 }
 
 
 
+data class Ingredient(
+    val imageUrl: String,
+    val amount: String,
+    val name: String
+)
 
 
 @Preview(showBackground = true)
@@ -415,6 +428,95 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+
+val ingredients = listOf(
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Sesame%20Seed%20Burger%20Buns-small.png", "5 tsp", "Sesame Seed Burger Buns"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/tomatoes-small.png", "4", "tomatoes"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+    Ingredient("https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbsp", "Olive Oil"),
+
+    )
 
 
 
