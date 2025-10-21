@@ -1,6 +1,7 @@
 package com.example.benakmoume_yahi.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,26 +25,30 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.benakmoume_yahi.R
+import com.example.benakmoume_yahi.navigation.AppRoute
 import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
 
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun LoginOrSignUpScreenPreview() {
     BENAKMOUME_YAHITheme {
         LoginOrSignUpScreen()
     }
-}
+}*/
 @Composable
-fun LoginOrSignUpScreen(modifier: Modifier = Modifier)
+fun LoginOrSignUpScreen(navController: NavHostController, modifier: Modifier = Modifier)
 {
     val mainColor = Color(0xFFFF6E41)
 
@@ -59,7 +64,7 @@ fun LoginOrSignUpScreen(modifier: Modifier = Modifier)
             contentDescription = "Product Image",
 
             modifier = Modifier.fillMaxWidth()
-                .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                 .drawWithContent {
                     drawContent()
                     drawRect(
@@ -169,7 +174,10 @@ fun LoginOrSignUpScreen(modifier: Modifier = Modifier)
                 color = Color(0xFFFF6E41),
                 fontSize = 18.sp,
                 textDecoration = TextDecoration.Underline,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable(
+                    onClick = { navController.navigate(AppRoute.Landing.route) }
+                )
 
             )
 

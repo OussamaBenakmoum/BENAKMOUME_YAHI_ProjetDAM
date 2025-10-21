@@ -26,18 +26,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.benakmoume_yahi.R
+import com.example.benakmoume_yahi.navigation.AppRoute
 import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview() {
     BENAKMOUME_YAHITheme {
         WelcomeScreen()
     }
-}
+}*/
 @Composable
-fun WelcomeScreen(modifier: Modifier = Modifier)
+fun WelcomeScreen(navController: NavHostController, modifier: Modifier = Modifier)
 {
     val mainColor = Color(0xFFFF6E41)
 
@@ -112,7 +114,7 @@ fun WelcomeScreen(modifier: Modifier = Modifier)
             )
             Spacer(modifier = Modifier.height(22.dp))
             Button(
-                onClick = { println("Start Cooking") },
+                onClick = { navController.navigate(AppRoute.LoginOrSignUp.route) },
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .height(48.dp),

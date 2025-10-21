@@ -90,6 +90,7 @@ import coil.compose.AsyncImage
 import com.example.benakmoume_yahi.components.ReviewCard
 import com.example.benakmoume_yahi.models.Ingredient
 import com.example.benakmoume_yahi.models.Review
+import com.example.benakmoume_yahi.navigation.AppNavGraph
 import com.example.benakmoume_yahi.screens.LoginOrSignUpScreen
 import com.example.benakmoume_yahi.screens.RecipeDetailScreen
 import com.example.benakmoume_yahi.screens.WelcomeScreen
@@ -105,11 +106,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             BENAKMOUME_YAHITheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
-                    Greeting(
+                    AppNavGraph(modifier = Modifier.padding(innerPadding))
+                    /*Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
-                    )
+                    )*/
 
                 }
             }
@@ -148,7 +149,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier)
 @Composable
 fun GreetingPreview() {
     BENAKMOUME_YAHITheme {
-        Greeting("Android")
+        //Greeting("Android")
     }
 }
 

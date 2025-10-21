@@ -30,6 +30,7 @@ import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SecondaryTabRow
@@ -58,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.benakmoume_yahi.R
 import com.example.benakmoume_yahi.components.OrderBottomSheet
@@ -68,17 +71,22 @@ import com.example.benakmoume_yahi.utils.hasInternet
 import com.example.benakmoume_yahi.utils.ingredients
 import com.example.benakmoume_yahi.utils.reviews
 
-@Preview(showBackground = true)
+
+@Preview(
+    showBackground = true,
+    showSystemUi = true,
+    name = "Recipe Detail Preview"
+)
 @Composable
 fun RecipeDetailScreenPreview() {
-    BENAKMOUME_YAHITheme {
-        RecipeDetailScreen()
+    val fakeNavController = rememberNavController()
+    MaterialTheme {
+        RecipeDetailScreen(navController = fakeNavController)
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeDetailScreen(modifier: Modifier = Modifier)
+fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Modifier)
 {
     var showPlayer by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -91,7 +99,7 @@ fun RecipeDetailScreen(modifier: Modifier = Modifier)
         skipPartiallyExpanded = false,
     )
 
-    Column (modifier = Modifier.fillMaxSize().padding(0.dp, 30.dp, 0.dp, 50.dp))
+    Column (modifier = Modifier.fillMaxSize().padding(0.dp, 0.dp, 0.dp, 0.dp))
     {
         Column (modifier = Modifier.fillMaxWidth().weight(0.25f))
         {
