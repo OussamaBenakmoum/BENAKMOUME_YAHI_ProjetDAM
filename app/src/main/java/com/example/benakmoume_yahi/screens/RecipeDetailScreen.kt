@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -63,6 +64,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.benakmoume_yahi.R
+import com.example.benakmoume_yahi.components.InstructionCard
 import com.example.benakmoume_yahi.components.OrderBottomSheet
 import com.example.benakmoume_yahi.components.ReviewCard
 import com.example.benakmoume_yahi.components.YouTubePlayer
@@ -71,6 +73,7 @@ import com.example.benakmoume_yahi.utils.hasInternet
 import com.example.benakmoume_yahi.utils.ingredients
 import com.example.benakmoume_yahi.utils.reviews
 
+val stringInstruction = "For the Big Mac sauce, combine all the ingredients in a bowl, season with salt and chill until ready to use."
 
 @Preview(
     showBackground = true,
@@ -351,9 +354,14 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                             //.verticalScroll(scrollState)
                         )
                         {
-                            Text(
-                                "For the Big Mac sauce, combine all the ingredients in a bowl, season with salt and chill until ready to use.\r\n2. To make the patties, season the mince with salt and pepper and form into 4 balls using about 1/3 cup mince each. Place each onto a square of baking paper and flatten to form into four x 15cm circles. Heat oil in a large frypan over high heat. In 2 batches, cook beef patties for 1-2 minutes each side until lightly charred and cooked through. Remove from heat and keep warm. Repeat with remaining two patties.\r\n3. Carefully slice each burger bun into three acrossways, then lightly toast.\r\n4. To assemble the burgers, spread a little Big Mac sauce over the bottom base. Top with some chopped onion, shredded lettuce, slice of cheese, beef patty and some pickle slices. Top with the middle bun layer, and spread with more Big Mac sauce, onion, lettuce, pickles, beef patty and then finish with more sauce. Top with burger lid to serve.\r\n5. After waiting half an hour for your food to settle, go for a jog."
-                            )
+                            //Text(    "For the Big Mac sauce, combine all the ingredients in a bowl, season with salt and chill until ready to use.\r\n2. To make the patties, season the mince with salt and pepper and form into 4 balls using about 1/3 cup mince each. Place each onto a square of baking paper and flatten to form into four x 15cm circles. Heat oil in a large frypan over high heat. In 2 batches, cook beef patties for 1-2 minutes each side until lightly charred and cooked through. Remove from heat and keep warm. Repeat with remaining two patties.\r\n3. Carefully slice each burger bun into three acrossways, then lightly toast.\r\n4. To assemble the burgers, spread a little Big Mac sauce over the bottom base. Top with some chopped onion, shredded lettuce, slice of cheese, beef patty and some pickle slices. Top with the middle bun layer, and spread with more Big Mac sauce, onion, lettuce, pickles, beef patty and then finish with more sauce. Top with burger lid to serve.\r\n5. After waiting half an hour for your food to settle, go for a jog.")
+                            InstructionCard(stringInstruction)
+                            InstructionCard(stringInstruction)
+                            InstructionCard(stringInstruction)
+                            InstructionCard(stringInstruction)
+                            InstructionCard(stringInstruction)
+                            InstructionCard(stringInstruction)
+                            InstructionCard(stringInstruction)
 
                         }
                     }

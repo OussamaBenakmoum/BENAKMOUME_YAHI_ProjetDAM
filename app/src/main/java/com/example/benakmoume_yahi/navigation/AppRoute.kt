@@ -1,5 +1,11 @@
 package com.example.benakmoume_yahi.navigation
 
+import android.R
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
+
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -12,7 +18,7 @@ sealed class AppRoute(val route: String, val title: String, val icon: androidx.c
     object LoginOrSignUp : AppRoute("login_or_signup", "Connexion")
 
     // Main app flow (bottom navigation)
-    object Landing : AppRoute("landing", "Accueil", Icons.Filled.Home)
+    object Landing : AppRoute("landing", "Accueil",Icons.Filled.Home)
     object Search : AppRoute("search", "Recherche", Icons.Filled.Search)
     object Cart : AppRoute("cart", "Panier", Icons.Filled.ShoppingCart)
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)

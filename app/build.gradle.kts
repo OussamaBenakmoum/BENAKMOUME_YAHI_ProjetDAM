@@ -43,6 +43,11 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0") //[OB] Added for the async images to display from their url
     implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")//[OB] TO read youtube videos
 
+
+    implementation("androidx.compose.material:material-icons-extended")
+
+    implementation("org.osmdroid:osmdroid-android:6.1.16")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -53,6 +58,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.play.services.maps)
+    implementation(libs.androidx.preference.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

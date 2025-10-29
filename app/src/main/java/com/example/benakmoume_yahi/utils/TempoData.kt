@@ -1,6 +1,9 @@
 package com.example.benakmoume_yahi.utils
 
+import com.example.benakmoume_yahi.R
 import com.example.benakmoume_yahi.models.Ingredient
+import com.example.benakmoume_yahi.models.Restaurant
+import com.example.benakmoume_yahi.models.RestaurantCardData
 import com.example.benakmoume_yahi.models.Review
 
 val reviews = listOf(
@@ -36,3 +39,33 @@ val ingredients = listOf(
     Ingredient(11, "https://www.themealdb.com/images/ingredients/Eggs-small.png", "4", "Eggs"),
 )
 
+
+val restaurantList = listOf(
+    Restaurant(
+        id = 1,
+        name = "Culina Hortus",
+        tags = listOf("gastronomique", "végétarien", "fait maison"),
+        imageRes = R.drawable.restaurant1,
+        address = "38 rue de l’Arbre sec, 69001 Lyon",
+        latitude = 45.767,
+        longitude = 4.834
+    ),
+    Restaurant(
+        id = 2,
+        name = "L’Équilibriste",
+        tags = listOf("végétarien", "éco-responsable", "vegan option"),
+        imageRes = com.example.benakmoume_yahi.R.drawable.restaurant2,
+        address = "125 avenue Lacassagne, 69003 Lyon",
+        latitude = 45.770,
+        longitude = 4.860
+    ),
+    Restaurant(
+        id = 3,
+        name = "Les Mauvaises Herbes",
+        tags = listOf("végétarien", "bistronomie", "créatif"),
+        imageRes = com.example.benakmoume_yahi.R.drawable.restaurant3,
+        address = "3 rue du Jardin des Plantes, 69001 Lyon",
+        latitude = 45.765,
+        longitude = 4.835
+    )
+)

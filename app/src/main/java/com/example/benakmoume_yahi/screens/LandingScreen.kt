@@ -27,7 +27,7 @@ fun LandingScreenPreview()
 @Composable
 fun LandingScreen(navController: NavHostController, modifier: Modifier = Modifier)
 {
-    Column(modifier = modifier.background(Color.Transparent).fillMaxSize())
+    Column(modifier = Modifier.fillMaxSize())
     {
         Text("Landing screen !")
         Button(onClick = {navController.navigate(AppRoute.RecipeDetail.route)}) { }
