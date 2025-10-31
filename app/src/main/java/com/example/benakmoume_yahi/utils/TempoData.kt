@@ -26,17 +26,17 @@ val reviews = listOf(
     Review(9,"https://randomuser.me/api/portraits/women/24.jpg","Mia Anderson","Loved the recipe! The preparation guide is clear and ingredients are easy to follow.", "1 week ago",rating = 5)
 )
 val ingredients = listOf(
-    Ingredient(1, "https://www.themealdb.com/images/ingredients/Tomatoes-small.png", "4", "Tomatoes"),
-    Ingredient(2, "https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbs", "Olive Oil"),
-    Ingredient(3, "https://www.themealdb.com/images/ingredients/Onion-small.png", "1 Diced", "Onion"),
-    Ingredient(4, "https://www.themealdb.com/images/ingredients/Red%20Pepper-small.png", "1 sliced", "Red Pepper"),
-    Ingredient(5, "https://www.themealdb.com/images/ingredients/Green%20Pepper-small.png", "1 sliced", "Green Pepper"),
-    Ingredient(6, "https://www.themealdb.com/images/ingredients/Garlic-small.png", "3 Cloves Crushed", "Garlic"),
-    Ingredient(7, "https://www.themealdb.com/images/ingredients/Cumin-small.png", "1 tsp", "Cumin"),
-    Ingredient(8, "https://www.themealdb.com/images/ingredients/Paprika-small.png", "1 tsp", "Paprika"),
-    Ingredient(9, "https://www.themealdb.com/images/ingredients/Salt-small.png", "3/4 teaspoon", "Salt"),
-    Ingredient(10, "https://www.themealdb.com/images/ingredients/Chili%20Powder-small.png", "1/2 teaspoon", "Chili Powder"),
-    Ingredient(11, "https://www.themealdb.com/images/ingredients/Eggs-small.png", "4", "Eggs"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Tomatoes-small.png", "4", "Tomatoes"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Olive%20Oil-small.png", "2 tbs", "Olive Oil"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Onion-small.png", "1 Diced", "Onion"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Red%20Pepper-small.png", "1 sliced", "Red Pepper"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Green%20Pepper-small.png", "1 sliced", "Green Pepper"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Garlic-small.png", "3 Cloves Crushed", "Garlic"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Cumin-small.png", "1 tsp", "Cumin"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Paprika-small.png", "1 tsp", "Paprika"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Salt-small.png", "3/4 teaspoon", "Salt"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Chili%20Powder-small.png", "1/2 teaspoon", "Chili Powder"),
+    Ingredient( "https://www.themealdb.com/images/ingredients/Eggs-small.png", "4", "Eggs"),
 )
 
 
@@ -46,15 +46,15 @@ val restaurantList = listOf(
         name = "Culina Hortus",
         tags = listOf("gastronomique", "végétarien", "fait maison"),
         imageRes = R.drawable.restaurant1,
-        address = "38 rue de l’Arbre sec, 69001 Lyon",
+        address = "38 rue de l'Arbre sec, 69001 Lyon",
         latitude = 45.767,
         longitude = 4.834
     ),
     Restaurant(
         id = 2,
-        name = "L’Équilibriste",
+        name = "L'Équilibriste",
         tags = listOf("végétarien", "éco-responsable", "vegan option"),
-        imageRes = com.example.benakmoume_yahi.R.drawable.restaurant2,
+        imageRes = R.drawable.restaurant2,
         address = "125 avenue Lacassagne, 69003 Lyon",
         latitude = 45.770,
         longitude = 4.860
@@ -63,9 +63,45 @@ val restaurantList = listOf(
         id = 3,
         name = "Les Mauvaises Herbes",
         tags = listOf("végétarien", "bistronomie", "créatif"),
-        imageRes = com.example.benakmoume_yahi.R.drawable.restaurant3,
+        imageRes = R.drawable.restaurant3,
         address = "3 rue du Jardin des Plantes, 69001 Lyon",
         latitude = 45.765,
         longitude = 4.835
+    ),
+    Restaurant(
+        id = 4,
+        name = "Équilibres Café",
+        tags = listOf("végétarien", "brunch", "fait maison"),
+        imageRes = R.drawable.restaurant1,
+        address = "4 rue Terme, 69001 Lyon",
+        latitude = 45.766,
+        longitude = 4.834
+    ),
+    Restaurant(
+        id = 5,
+        name = "Like An Elephant",
+        tags = listOf("végan", "bistronomie", "créatif"),
+        imageRes = R.drawable.restaurant2,
+        address = "9 rue Imbert Colomès, 69001 Lyon",
+        latitude = 45.772,
+        longitude = 4.830
+    ),
+    Restaurant(
+        id = 6,
+        name = "Laska",
+        tags = listOf("végétarien", "bio", "gastronomique"),
+        imageRes = R.drawable.restaurant3,
+        address = "13 rue Terraille, 69001 Lyon",
+        latitude = 45.763,
+        longitude = 4.831
+    ),
+    Restaurant(
+        id = 7,
+        name = "Maison Moly",
+        tags = listOf("bistronomie", "fait maison", "produits frais"),
+        imageRes = R.drawable.restaurant1,
+        address = "1 rue Tupin, 69002 Lyon",
+        latitude = 45.757,
+        longitude = 4.827
     )
 )

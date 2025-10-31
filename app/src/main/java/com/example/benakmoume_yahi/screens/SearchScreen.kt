@@ -202,12 +202,17 @@ fun SearchScreen(navController: NavHostController) {
                     val restaurant = displayedRestaurants[index]
                     Column ()
                     {
-                        Row(Modifier.fillMaxSize()) {
+                        Row(modifier = Modifier
+                                        .fillMaxSize()
+                                        .clickable { navController.navigate(AppRoute.RestaurantDetail.Companion.createRoute(restaurant.id)) }
+                        )
+                        {
                             Card(
                                 shape = RoundedCornerShape(16.dp),
                                 modifier = Modifier
                                     .height(100.dp)
                                     .width(120.dp)
+
                             ) {
                                 Image(
                                     painter = painterResource(id = restaurant.imageRes),

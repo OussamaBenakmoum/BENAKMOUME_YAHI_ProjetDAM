@@ -1,8 +1,7 @@
 package com.example.benakmoume_yahi.models
 
 data class Ingredient(
-    val id: Int,
-    val imageUrl: String,
-    val amount: String,
+    val image_url: String,
+    val measure: String,
     val name: String
 )

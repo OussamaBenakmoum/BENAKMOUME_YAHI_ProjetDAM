@@ -24,6 +24,18 @@ sealed class AppRoute(val route: String, val title: String, val icon: androidx.c
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)
 
     // Detail screens within the main flow
-    object RestaurantDetail : AppRoute("restaurant_detail", "Restaurant Détail")
-    object RecipeDetail : AppRoute("recipe_detail", "Recette Détail")
+    sealed class RestaurantDetail(restaurantId: Int) : AppRoute("restaurant_detail/$restaurantId", "Restaurant Détail") {
+        companion object {
+            const val ROUTE = "restaurant_detail/{restaurantId}"
+            fun createRoute(restaurantId: Int) = "restaurant_detail/$restaurantId"
+        }
+    }
+    //object RecipeDetail : AppRoute("recipe_detail", "Recette Détail")
+
+    sealed class RecipeDetail(mealId: Int) : AppRoute("recipe_detail/$mealId", "Recette Détail") {
+        companion object {
+            const val ROUTE = "recipe_detail/{mealId}"
+            fun createRoute(mealId: Int) = "recipe_detail/$mealId"
+        }
+    }
 }

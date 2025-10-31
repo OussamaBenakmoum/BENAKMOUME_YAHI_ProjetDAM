@@ -48,6 +48,18 @@ dependencies {
 
     implementation("org.osmdroid:osmdroid-android:6.1.16")
 
+    // Retrofit pour les appels HTTP
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    // Convertisseur JSON (Gson)
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    // Kotlin Coroutines pour Retrofit async
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Lifecycle ViewModel avec Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

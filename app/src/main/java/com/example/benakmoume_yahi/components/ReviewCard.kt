@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,34 +64,34 @@ fun ReviewCard(review: Review)
                 Row (modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) // will hold rating stars
                 {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu_search)/*Icons.Default.Star*/,
+                        imageVector = Icons.Default.Star,
                         contentDescription = "Rate Receipt",
                         tint = Color(0xFFFF6E41),
                         modifier = Modifier.size(15.dp),
                     )
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu_search)/*Icons.Default.Star*/,
+                        imageVector = Icons.Default.Star,
                         contentDescription = "Rate Receipt",
                         tint = Color(0xFFFF6E41),
                         modifier = Modifier.size(15.dp),
 
                         )
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu_search)/*Icons.Default.Star*/,
+                        imageVector =Icons.Default.Star,
                         contentDescription = "Rate Receipt",
                         tint = Color(0xFFFF6E41),
                         modifier = Modifier.size(15.dp),
 
                         )
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu_search)/*Icons.Default.Star*/,
+                        imageVector = Icons.Default.Star,
                         contentDescription = "Rate Receipt",
                         tint = Color(0xFFFF6E41),
                         modifier = Modifier.size(15.dp),
 
                         )
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_menu_search)/*Icons.Default.Star*/,
+                        imageVector = Icons.Default.Star,
                         contentDescription = "Rate Receipt",
                         tint = Color.Gray,
                         modifier = Modifier.size(15.dp),

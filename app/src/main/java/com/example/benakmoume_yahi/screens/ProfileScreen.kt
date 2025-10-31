@@ -17,6 +17,7 @@ fun ProfileScreen(navController: NavHostController)
     Column(modifier = Modifier.fillMaxSize())
     {
         Text("Profile screen !")
-        Button(onClick = {navController.navigate(AppRoute.RecipeDetail.route)}) { }
+        Button(onClick = {navController.navigate(AppRoute.RecipeDetail.Companion.createRoute(11))}) { }
+
     }
 }

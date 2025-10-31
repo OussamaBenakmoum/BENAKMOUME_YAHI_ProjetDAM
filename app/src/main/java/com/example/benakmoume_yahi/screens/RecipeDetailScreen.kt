@@ -4,48 +4,14 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -57,9 +23,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -69,6 +37,8 @@ import com.example.benakmoume_yahi.components.OrderBottomSheet
 import com.example.benakmoume_yahi.components.ReviewCard
 import com.example.benakmoume_yahi.components.YouTubePlayer
 import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
+import com.example.benakmoume_yahi.viewmodel.RecipeDetailViewModel
+import com.example.benakmoume_yahi.viewmodel.RecipeUiState
 import com.example.benakmoume_yahi.utils.hasInternet
 import com.example.benakmoume_yahi.utils.ingredients
 import com.example.benakmoume_yahi.utils.reviews
@@ -87,10 +57,17 @@ fun RecipeDetailScreenPreview() {
         RecipeDetailScreen(navController = fakeNavController)
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Modifier)
-{
+fun RecipeDetailScreen(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    mealId: String? = null,
+    viewModel: RecipeDetailViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
     var showPlayer by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -102,18 +79,60 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
         skipPartiallyExpanded = false,
     )
 
-    Column (modifier = Modifier.fillMaxSize().padding(0.dp, 0.dp, 0.dp, 0.dp))
+    // Charger la recette au démarrage
+    LaunchedEffect(mealId) {
+        if (mealId != null) {
+            viewModel.loadRecipeById(mealId)
+        } else {
+            //viewModel.loadRandomRecipe()
+            viewModel.loadRecipeById("53085")
+
+        }
+    }
+
+    // Récupérer le nom de la recette depuis l'API
+    val recipeId = when (val state = uiState) {
+        is RecipeUiState.Success -> state.recipe.id_meal
+        else -> "null" // Valeur par défaut
+    }
+
+    val recipeName = when (val state = uiState) {
+        is RecipeUiState.Success -> state.recipe.name
+        else -> "Java corn with peanut sauce" // Valeur par défaut
+    }
+
+    val recipeYoutubeUrl = when (val state = uiState) {
+        is RecipeUiState.Success -> state.recipe.youtube_url
+        else -> null
+    }
+
+    val recipeImageUrl = when (val state = uiState) {
+        is RecipeUiState.Success -> state.recipe.image_url
+        else -> null
+    }
+
+    val ingredientsList = when (val state = uiState) {
+        is RecipeUiState.Success -> state.recipe.ingredients
+        else -> ingredients
+    }
+
+    val instructionsList = when (val state = uiState) {
+        is RecipeUiState.Success -> state.recipe.instructions
+        else -> listOf(stringInstruction, stringInstruction, stringInstruction)
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(0.dp, 0.dp, 0.dp, 0.dp))
     {
-        Column (modifier = Modifier.fillMaxWidth().weight(0.25f))
+        Column(modifier = Modifier.fillMaxWidth().weight(0.25f))
         {
             if (showPlayer && hasInternet(context)) {
-                YouTubePlayer(videoId = "C5J39YnnPsg")
+                YouTubePlayer(videoId = recipeYoutubeUrl?:"")
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
 
                     if (hasInternet(context)) {
                         AsyncImage(
-                            model = "https://www.themealdb.com/images/media/meals/urzj1d1587670726.jpg",
+                            model = recipeImageUrl,
                             contentDescription = "Meal Image",
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -143,16 +162,17 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                                     if (hasInternet(context)) {
                                         showPlayer = true
                                     } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Check internet connection",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "Check internet connection",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                            .show()
                                     }
                                 }
                         )
-                    }
-                    else {
+                    } else {
                         Image(
                             painter = painterResource(R.drawable.platwelcome3),
                             contentDescription = "Default Meal Image",
@@ -178,16 +198,26 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                 }
             }
         }
-        Column (modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.14f)){
-            Column (modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp))
+        Column(modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.14f)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp))
             {
-                Text("Java corn with peanut sauce",
-                    fontSize = 27.sp)
-                Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp))
+                Text(
+                    text = recipeName + "  " + recipeId,
+                    fontSize = 24.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)
+                )
                 {
-                    Row (verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
-                        showOrderBottomSheet = true
-                    })
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            showOrderBottomSheet = true
+                        })
                     {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -226,7 +256,7 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                         Spacer(modifier = Modifier.width(10.dp))
                         Text("14,991 reviews", color = Color.Gray)
                     }
-                    Row (verticalAlignment = Alignment.CenterVertically)
+                    Row(verticalAlignment = Alignment.CenterVertically)
                     {
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
@@ -240,7 +270,10 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
 
                 }
             }
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            )
             {
                 Column()
                 {
@@ -273,7 +306,7 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
         )
         Box(modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.5f))
         {
-            Column (modifier = Modifier/*.weight(0.5f).*/.verticalScroll(scrollState))
+            Column(modifier = Modifier/*.weight(0.5f).*/.verticalScroll(scrollState))
             {
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -318,11 +351,12 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                 when (selectedTab)
                 {
                     0 -> {
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
                         )
                         {
-                            ingredients.forEach { ingredient ->
+                            ingredientsList.forEach { ingredient ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
@@ -331,7 +365,7 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                                 ) {
 
                                     AsyncImage(
-                                        model = ingredient.imageUrl,
+                                        model = ingredient.image_url,
                                         contentDescription = ingredient.name,
                                         modifier = Modifier
                                             .size(38.dp)
@@ -339,7 +373,7 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                                     )
                                     // Texte quantité et nom
                                     Text(
-                                        text = "${ingredient.amount} ${ingredient.name}",
+                                        text = "${ingredient.measure} ${ingredient.name}",
                                         color = Color.Black
                                     )
                                 }
@@ -354,14 +388,9 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                             //.verticalScroll(scrollState)
                         )
                         {
-                            //Text(    "For the Big Mac sauce, combine all the ingredients in a bowl, season with salt and chill until ready to use.\r\n2. To make the patties, season the mince with salt and pepper and form into 4 balls using about 1/3 cup mince each. Place each onto a square of baking paper and flatten to form into four x 15cm circles. Heat oil in a large frypan over high heat. In 2 batches, cook beef patties for 1-2 minutes each side until lightly charred and cooked through. Remove from heat and keep warm. Repeat with remaining two patties.\r\n3. Carefully slice each burger bun into three acrossways, then lightly toast.\r\n4. To assemble the burgers, spread a little Big Mac sauce over the bottom base. Top with some chopped onion, shredded lettuce, slice of cheese, beef patty and some pickle slices. Top with the middle bun layer, and spread with more Big Mac sauce, onion, lettuce, pickles, beef patty and then finish with more sauce. Top with burger lid to serve.\r\n5. After waiting half an hour for your food to settle, go for a jog.")
-                            InstructionCard(stringInstruction)
-                            InstructionCard(stringInstruction)
-                            InstructionCard(stringInstruction)
-                            InstructionCard(stringInstruction)
-                            InstructionCard(stringInstruction)
-                            InstructionCard(stringInstruction)
-                            InstructionCard(stringInstruction)
+                            instructionsList.forEach { element ->
+                                InstructionCard(element)
+                            }
 
                         }
                     }
@@ -381,7 +410,7 @@ fun RecipeDetailScreen(navController: NavHostController, modifier: Modifier = Mo
                 var selectedRating by remember { mutableStateOf(2) }
                 var reviewText by remember { mutableStateOf("") }
                 ModalBottomSheet(
-                    modifier = Modifier.fillMaxHeight().padding(0.dp,30.dp, 0.dp, 0.dp),
+                    modifier = Modifier.fillMaxHeight().padding(0.dp, 30.dp, 0.dp, 0.dp),
                     sheetState = ratingSheetState,
                     onDismissRequest = { showOrderBottomSheet = false }
                 ) {
