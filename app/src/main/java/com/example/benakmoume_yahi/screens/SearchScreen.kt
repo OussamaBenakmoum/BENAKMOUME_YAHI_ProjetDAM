@@ -1,98 +1,71 @@
 package com.example.benakmoume_yahi.screens
 
-import android.R
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.benakmoume_yahi.models.RestaurantCardData
+import coil.compose.AsyncImage
+import com.example.benakmoume_yahi.components.RecipeCard
+import com.example.benakmoume_yahi.components.RestaurantCard
 import com.example.benakmoume_yahi.navigation.AppRoute
-import com.example.benakmoume_yahi.utils.restaurantList
-
+import com.example.benakmoume_yahi.viewmodel.SearchViewModel
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewSearchScreen()
-{
+fun PreviewSearchScreen() {
     val navController = rememberNavController()
-    SearchScreen(navController)
+    // SearchScreen(navController)
 }
+
 @Composable
-fun SearchScreen(navController: NavHostController) {
-    var search by remember { mutableStateOf("") }
+fun SearchScreen(
+    navController: NavHostController,
+    viewModel: SearchViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
     var isFocused by remember { mutableStateOf(false) }
     var showAllRestaurants by remember { mutableStateOf(false) }
 
-
-    Column(modifier = Modifier
-        .fillMaxSize()
-        //.padding(vertical = 10.dp)
-    )
-    {
+    Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Search",
             color = Color.Black,
             fontSize = 35.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 15.dp)
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
         )
 
         OutlinedTextField(
-            value = search,
-            onValueChange = { search = it },
+            value = uiState.searchQuery,
+            onValueChange = { viewModel.onSearchQueryChanged(it) },
             shape = RoundedCornerShape(24.dp),
-            //label = { Text("Rechercher ta recette favorite...", modifier = Modifier.background(Color.Transparent)) },
-            leadingIcon = {  Icon(Icons.Default.Search, contentDescription = null) },
+            placeholder = { Text("Trouver une recette/ un restaurant...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 23.dp, vertical = 10.dp)
@@ -109,195 +82,243 @@ fun SearchScreen(navController: NavHostController) {
                 unfocusedLabelColor = Color.LightGray,
             )
         )
-        Column (modifier = Modifier.background(Color(0xFFF4F2EE)).padding(horizontal = 8.dp).fillMaxWidth())
-        {
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween)
-            {
-                Text(
-                    text = "Recettes",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-                var i = 0
-                Text(
-                    text = "Plus +",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(vertical = 8.dp).clickable(true, onClick = {null})
-                )
 
-
-
-            }
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-            {
-                items(recipeList.size) { index ->
-                    val recipe = recipeList[index]
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        //backgroundColor = Color.White,
-                        //elevation = 4.dp,
-                        modifier = Modifier
-                            .size(width = 260.dp, height = 170.dp)
-                    ) {
-                        Box(Modifier.fillMaxSize()) {
-                            Image(
-                                painter = painterResource(id = recipe.imageRes),
-                                contentDescription = recipe.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                                    .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush = Brush.verticalGradient(
-                                                colors = listOf( Color.Transparent, Color.Black),
-                                            ),
-                                        )
-                                    },
-                            )
-                            Column(
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp),
-                                verticalArrangement = Arrangement.Bottom
-                            ) {
-                                Text(recipe.category, fontSize = 11.sp, color = Color.White)
-                                Text(recipe.title, fontSize = 16.sp, color = Color.White)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        Spacer(modifier = Modifier.background(Color.White).height(12.dp) )
-
-        Column(modifier = Modifier.background(Color(0xFFF4F2EE)).padding(horizontal = 8.dp).fillMaxSize()) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Restaurants",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-
-            val displayedRestaurants = if (showAllRestaurants) restaurantList else restaurantList.take(2)
-
-            LazyColumn(
+        // Affichage du loading
+        if (uiState.isLoading) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .fillMaxSize()
+                    .background(Color(0xFFF4F2EE)),
+                contentAlignment = Alignment.Center
             ) {
-                items(displayedRestaurants.size) { index ->
-                    val restaurant = displayedRestaurants[index]
-                    Column ()
-                    {
-                        Row(modifier = Modifier
-                                        .fillMaxSize()
-                                        .clickable { navController.navigate(AppRoute.RestaurantDetail.Companion.createRoute(restaurant.id)) }
-                        )
-                        {
-                            Card(
-                                shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier
-                                    .height(100.dp)
-                                    .width(120.dp)
-
-                            ) {
-                                Image(
-                                    painter = painterResource(id = restaurant.imageRes),
-                                    contentDescription = restaurant.name,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                )
-                            }
-
-                            Column(
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(restaurant.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                Text(restaurant.address, fontSize = 13.sp, color = Color.Gray)
-                                Text(
-                                    text = restaurant.tags.joinToString(separator = ", "),
-                                    fontSize = 13.sp,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.background(Color.White).height(12.dp) )
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp),
-                            thickness = DividerDefaults.Thickness, color = Color(0xFFcfcfcf)
-                        )
-
-
-                    }
-                }
+                CircularProgressIndicator(color = Color.Black)
             }
-            if (!showAllRestaurants && restaurantList.size > 2) {
+        }
+        // Affichage de l'erreur
+        else if (uiState.error != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF4F2EE))
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = "Afficher tous les restaurants obtenus",
-                    color = Color.Gray,
+                    text = "❌ Erreur",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = uiState.error ?: "Une erreur est survenue",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier
-                        //.padding(vertical = 8.dp)
-                        .clickable { showAllRestaurants = true }
-                        .align(Alignment.CenterHorizontally)
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
                 )
             }
         }
+        // Message d'information si la recherche est vide
+        else if (uiState.searchQuery.isEmpty() || uiState.searchQuery.isBlank()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF4F2EE))
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp),
+                    tint = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Aucun résultat",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Tapez dans la barre de recherche\npour trouver des recettes et restaurants",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        // Affichage des résultats
+        else {
+            // Message si aucun résultat trouvé
+            if (uiState.recipes.isEmpty() && uiState.restaurants.isEmpty())
+            {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFF4F2EE))
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(80.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Aucun résultat trouvé",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Essayez avec d'autres mots-clés",
+                        fontSize = 16.sp,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            else
+            {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // Section Recettes - affichée seulement si des recettes sont trouvées
+                    if (uiState.recipes.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .background(Color(0xFFF4F2EE))
+                                .padding(horizontal = 8.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Recettes (${uiState.recipes.size})",
+                                    color = Color.Black,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                                /*Text(
+                                    text = "Plus +",
+                                    color = Color.Black,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier
+                                        .padding(vertical = 8.dp)
+                                        .clickable { /* Navigation vers toutes les recettes */ }
+                                )*/
+                            }
 
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            ) {
+                                items(uiState.recipes.size) { index ->
+                                    val recipe = uiState.recipes[index]
+                                    RecipeCard(
+                                        recipe = recipe,
+                                        onClick = {
+                                            navController.navigate(
+                                                AppRoute.RecipeDetail.createRoute(recipe.id_meal)
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .height(12.dp)
+                        )
+                    }
+
+                    // Section Restaurants - affichée seulement si des restaurants sont trouvés
+                    if (uiState.restaurants.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .background(Color(0xFFF4F2EE))
+                                .padding(horizontal = 8.dp)
+                                .fillMaxSize()
+                        ) {
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    text = "Restaurants (${uiState.restaurants.size})",
+                                    color = Color.Black,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+
+                            val displayedRestaurants = if (showAllRestaurants) {
+                                uiState.restaurants
+                            } else {
+                                uiState.restaurants.take(2)
+                            }
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(displayedRestaurants.size) { index ->
+                                    val restaurant = displayedRestaurants[index]
+                                    Column {
+                                        RestaurantCard(
+                                            restaurant = restaurant,
+                                            onClick = {
+                                                navController.navigate(
+                                                    AppRoute.RestaurantDetail.createRoute(restaurant.id)
+                                                )
+                                            }
+                                        )
+                                        Spacer(
+                                            modifier = Modifier
+                                                .background(Color.White)
+                                                .height(12.dp)
+                                        )
+                                        HorizontalDivider(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(1.dp),
+                                            thickness = DividerDefaults.Thickness,
+                                            color = Color(0xFFcfcfcf)
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (!showAllRestaurants && uiState.restaurants.size > 2) {
+                                Text(
+                                    text = "Afficher tous les restaurants (${uiState.restaurants.size})",
+                                    color = Color.Gray,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    modifier = Modifier
+                                        .clickable { showAllRestaurants = true }
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
-data class RecipeCardData(
-    val imageRes: Int,
-    val category: String,
-    val title: String
-)
-val recipeList = listOf(
-    RecipeCardData(
-        imageRes = com.example.benakmoume_yahi.R.drawable.platwelcome3, // replace with your resource
-        category = "Indonesian Food",
-        title = "Java corn with peanut sauce"
-    ),
-    RecipeCardData(
-        imageRes = com.example.benakmoume_yahi.R.drawable.platwelcome3,
-        category = "Japanese Food",
-        title = "Spaghetti Carbonara"
-    ),
-    RecipeCardData(
-        imageRes = com.example.benakmoume_yahi.R.drawable.platwelcome3,
-        category = "Mexican Food",
-        title = "Chicken Tacos"
-    ),
-    RecipeCardData(
-        imageRes = com.example.benakmoume_yahi.R.drawable.platwelcome3,
-        category = "Moroccan Food",
-        title = "Lamb Tagine"
-    ),
-    RecipeCardData(
-        imageRes = com.example.benakmoume_yahi.R.drawable.platwelcome3,
-        category = "Italian Food",
-        title = "Margherita Pizza"
-    )
-)
 
 

@@ -30,7 +30,7 @@ fun LandingScreen(navController: NavHostController, modifier: Modifier = Modifie
     Column(modifier = Modifier.fillMaxSize())
     {
         Text("Landing screen !")
-        Button(onClick = {navController.navigate(AppRoute.RecipeDetail.Companion.createRoute(11))}) { }
+        Button(onClick = {navController.navigate(AppRoute.RestaurantDetail.Companion.createRoute(1))}) { }
     }
 
 

@@ -40,68 +40,68 @@ val ingredients = listOf(
 )
 
 
-val restaurantList = listOf(
-    Restaurant(
-        id = 1,
-        name = "Culina Hortus",
-        tags = listOf("gastronomique", "végétarien", "fait maison"),
-        imageRes = R.drawable.restaurant1,
-        address = "38 rue de l'Arbre sec, 69001 Lyon",
-        latitude = 45.767,
-        longitude = 4.834
-    ),
-    Restaurant(
-        id = 2,
-        name = "L'Équilibriste",
-        tags = listOf("végétarien", "éco-responsable", "vegan option"),
-        imageRes = R.drawable.restaurant2,
-        address = "125 avenue Lacassagne, 69003 Lyon",
-        latitude = 45.770,
-        longitude = 4.860
-    ),
-    Restaurant(
-        id = 3,
-        name = "Les Mauvaises Herbes",
-        tags = listOf("végétarien", "bistronomie", "créatif"),
-        imageRes = R.drawable.restaurant3,
-        address = "3 rue du Jardin des Plantes, 69001 Lyon",
-        latitude = 45.765,
-        longitude = 4.835
-    ),
-    Restaurant(
-        id = 4,
-        name = "Équilibres Café",
-        tags = listOf("végétarien", "brunch", "fait maison"),
-        imageRes = R.drawable.restaurant1,
-        address = "4 rue Terme, 69001 Lyon",
-        latitude = 45.766,
-        longitude = 4.834
-    ),
-    Restaurant(
-        id = 5,
-        name = "Like An Elephant",
-        tags = listOf("végan", "bistronomie", "créatif"),
-        imageRes = R.drawable.restaurant2,
-        address = "9 rue Imbert Colomès, 69001 Lyon",
-        latitude = 45.772,
-        longitude = 4.830
-    ),
-    Restaurant(
-        id = 6,
-        name = "Laska",
-        tags = listOf("végétarien", "bio", "gastronomique"),
-        imageRes = R.drawable.restaurant3,
-        address = "13 rue Terraille, 69001 Lyon",
-        latitude = 45.763,
-        longitude = 4.831
-    ),
-    Restaurant(
-        id = 7,
-        name = "Maison Moly",
-        tags = listOf("bistronomie", "fait maison", "produits frais"),
-        imageRes = R.drawable.restaurant1,
-        address = "1 rue Tupin, 69002 Lyon",
-        latitude = 45.757,
-        longitude = 4.827
-    )
-)
+//val restaurantList = listOf(
+//    Restaurant(
+//        id = 1,
+//        name = "Culina Hortus",
+//        tags = listOf("gastronomique", "végétarien", "fait maison"),
+//        imageRes = R.drawable.restaurant1,
+//        address = "38 rue de l'Arbre sec, 69001 Lyon",
+//        latitude = 45.767,
+//        longitude = 4.834
+//    ),
+//    Restaurant(
+//        id = 2,
+//        name = "L'Équilibriste",
+//        tags = listOf("végétarien", "éco-responsable", "vegan option"),
+//        imageRes = R.drawable.restaurant2,
+//        address = "125 avenue Lacassagne, 69003 Lyon",
+//        latitude = 45.770,
+//        longitude = 4.860
+//    ),
+//    Restaurant(
+//        id = 3,
+//        name = "Les Mauvaises Herbes",
+//        tags = listOf("végétarien", "bistronomie", "créatif"),
+//        imageRes = R.drawable.restaurant3,
+//        address = "3 rue du Jardin des Plantes, 69001 Lyon",
+//        latitude = 45.765,
+//        longitude = 4.835
+//    ),
+//    Restaurant(
+//        id = 4,
+//        name = "Équilibres Café",
+//        tags = listOf("végétarien", "brunch", "fait maison"),
+//        imageRes = R.drawable.restaurant1,
+//        address = "4 rue Terme, 69001 Lyon",
+//        latitude = 45.766,
+//        longitude = 4.834
+//    ),
+//    Restaurant(
+//        id = 5,
+//        name = "Like An Elephant",
+//        tags = listOf("végan", "bistronomie", "créatif"),
+//        imageRes = R.drawable.restaurant2,
+//        address = "9 rue Imbert Colomès, 69001 Lyon",
+//        latitude = 45.772,
+//        longitude = 4.830
+//    ),
+//    Restaurant(
+//        id = 6,
+//        name = "Laska",
+//        tags = listOf("végétarien", "bio", "gastronomique"),
+//        imageRes = R.drawable.restaurant3,
+//        address = "13 rue Terraille, 69001 Lyon",
+//        latitude = 45.763,
+//        longitude = 4.831
+//    ),
+//    Restaurant(
+//        id = 7,
+//        name = "Maison Moly",
+//        tags = listOf("bistronomie", "fait maison", "produits frais"),
+//        imageRes = R.drawable.restaurant1,
+//        address = "1 rue Tupin, 69002 Lyon",
+//        latitude = 45.757,
+//        longitude = 4.827
+//    )
+//)
