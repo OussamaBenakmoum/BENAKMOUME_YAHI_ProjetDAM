@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import com.example.benakmoume_yahi.models.Restaurant
 
 @Composable
-fun CartScreen(navController: NavHostController, restaurant : Restaurant)
+fun CartScreen(navController: NavHostController)
 {
 
 

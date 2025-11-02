@@ -58,8 +58,8 @@ class RecipeDetailViewModel : ViewModel() {
             _uiState.value = RecipeUiState.Loading
             try {
                 val recipes = RetrofitInstance.api.getRecipesByLetter(letter)
-                if (recipes.isNotEmpty()) {
-                    _uiState.value = RecipeUiState.Success(recipes.first())
+                if (recipes.body() != null && recipes.isSuccessful()) {
+                    _uiState.value = RecipeUiState.Success(recipes.body()!!.first())
                 } else {
                     _uiState.value = RecipeUiState.Error("Aucune recette trouvée")
                 }

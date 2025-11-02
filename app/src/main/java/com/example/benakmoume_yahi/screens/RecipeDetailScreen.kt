@@ -54,7 +54,7 @@ val stringInstruction = "For the Big Mac sauce, combine all the ingredients in a
 fun RecipeDetailScreenPreview() {
     val fakeNavController = rememberNavController()
     MaterialTheme {
-        RecipeDetailScreen(navController = fakeNavController)
+        RecipeDetailScreen(navController = fakeNavController,"")
     }
 }
 
@@ -62,8 +62,8 @@ fun RecipeDetailScreenPreview() {
 @Composable
 fun RecipeDetailScreen(
     navController: NavHostController,
+    mealId: String?,
     modifier: Modifier = Modifier,
-    mealId: String? = null,
     viewModel: RecipeDetailViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -126,7 +126,7 @@ fun RecipeDetailScreen(
         Column(modifier = Modifier.fillMaxWidth().weight(0.25f))
         {
             if (showPlayer && hasInternet(context)) {
-                YouTubePlayer(videoId = recipeYoutubeUrl?:"")
+                YouTubePlayer(videoId = recipeYoutubeUrl?:"k9Ez0bUbXKc")
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
 
@@ -202,7 +202,7 @@ fun RecipeDetailScreen(
             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp))
             {
                 Text(
-                    text = recipeName + "  " + recipeId,
+                    text = recipeName,
                     fontSize = 24.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

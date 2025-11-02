@@ -1,6 +1,7 @@
 package com.example.benakmoume_yahi.navigation
 
 import android.R
+import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,7 +40,7 @@ import com.example.benakmoume_yahi.screens.SearchScreen
 import com.example.benakmoume_yahi.screens.SignInScreen
 import com.example.benakmoume_yahi.screens.SignUpScreen
 import com.example.benakmoume_yahi.screens.WelcomeScreen
-import com.example.benakmoume_yahi.utils.restaurantList
+//import com.example.benakmoume_yahi.utils.restaurantList
 
 @Composable
 fun AppNavGraph(
@@ -102,34 +103,34 @@ fun MainBottomNavGraph() {
         ) {
             composable(AppRoute.Landing.route) { LandingScreen(bottomNavController) }
             composable(AppRoute.Search.route) { SearchScreen(bottomNavController) }
-            composable(AppRoute.Cart.route) { CartScreen(bottomNavController, restaurant = restaurantList[0]) }
+            composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
             composable(AppRoute.Profile.route) { ProfileScreen(bottomNavController) }
 
             // Detail screen (Bottom bar hidden)
-            //composable(AppRoute.RecipeDetail.route) { RecipeDetailScreen(bottomNavController) }
             composable(
                 route = AppRoute.RecipeDetail.Companion.ROUTE, // "restaurant_detail/{restaurantId}"
-                arguments = listOf(navArgument("mealId") { type = NavType.IntType })
+                arguments = listOf(navArgument("mealId") { type = NavType.StringType })
             ) { backStackEntry ->
-                val mealId = backStackEntry.arguments?.getInt("mealId") ?: 0
-                val restaurant = restaurantList.find { it.id == mealId }
+                val mealId = backStackEntry.arguments?.getString("mealId") ?: "52981"
                 if (/*restaurant != null*/1 == 1) {
-                    RecipeDetailScreen(navController = bottomNavController)
+                    RecipeDetailScreen(navController = bottomNavController, mealId)
                 } else {
                     // Gérer la recette introuvable (erreur, écran fallback...)
                 }
             }
 
-            //composable(AppRoute.RestaurantDetail.route) { RestaurantDetailScreen(bottomNavController) }
             composable(
                 route = AppRoute.RestaurantDetail.Companion.ROUTE, // "restaurant_detail/{restaurantId}"
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: 0
-                val restaurant = restaurantList.find { it.id == restaurantId }
-                if (restaurant != null) {
-                    RestaurantDetailScreen(navController = bottomNavController, restaurant = restaurant)
+                //val restaurant = restaurantList.find { it.id == restaurantId }
+                Log.d("MyApp", "${restaurantId}")
+                if (restaurantId != 0) {
+
+                    RestaurantDetailScreen(navController = bottomNavController, restaurantId)
                 } else {
+
                     // Gérer le restaurant introuvable (erreur, écran fallback...)
                 }
             }
