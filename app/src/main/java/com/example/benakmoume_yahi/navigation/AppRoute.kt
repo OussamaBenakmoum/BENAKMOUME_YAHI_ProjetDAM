@@ -15,13 +15,21 @@ import androidx.compose.material.icons.filled.ShoppingCart
 sealed class AppRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector? = null) {
     // Authentication flow
     object Welcome : AppRoute("welcome", "Bienvenue")
-    object LoginOrSignUp : AppRoute("login_or_signup", "Connexion")
+    object LoginOrSignUp : AppRoute("login_or_signup", "Authentification")
+    object SignUp : AppRoute("SignUp", "Inscription")
+    object SignIn : AppRoute("SignIn", "Connexion")
+    object ForgotPassword : AppRoute("ForgotPassword", "Mot de passe Oublié")
+    object ChooseCuisine : AppRoute("choose_cuisine", "Choisir une cuisine")
+    object ChooseCategory : AppRoute("choose_category", "Choisir une catégorie")
 
     // Main app flow (bottom navigation)
     object Landing : AppRoute("landing", "Accueil",Icons.Filled.Home)
     object Search : AppRoute("search", "Recherche", Icons.Filled.Search)
     object Cart : AppRoute("cart", "Panier", Icons.Filled.ShoppingCart)
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)
+
+
+
 
     // Detail screens within the main flow
     sealed class RestaurantDetail(restaurantId: Int) : AppRoute("restaurant_detail/$restaurantId", "Restaurant Détail") {

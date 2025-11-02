@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "196707050986",
+    "project_id": "gogourmet-1e044",
+    "storage_bucket": "gogourmet-1e044.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196707050986:android:09f57e87b5ec446e5ebe93",
+        "android_client_info": {
+          "package_name": "com.example.benakmoume_yahi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0fYyQN_Sx587prbMDgYhHmnQDmOchCxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
