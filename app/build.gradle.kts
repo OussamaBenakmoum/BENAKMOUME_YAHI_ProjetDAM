@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services") version "4.4.4" apply false
+    //id("com.android.application")
 }
 
 android {
@@ -58,6 +60,11 @@ dependencies {
     // Lifecycle ViewModel avec Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics")
+
 
 
     implementation(libs.androidx.core.ktx)
@@ -73,6 +80,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.play.services.maps)
     implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

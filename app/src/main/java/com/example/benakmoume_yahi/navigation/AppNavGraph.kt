@@ -27,12 +27,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.benakmoume_yahi.screens.CartScreen
+import com.example.benakmoume_yahi.screens.ChooseCategoryScreen
+import com.example.benakmoume_yahi.screens.ChooseCuisineScreen
+import com.example.benakmoume_yahi.screens.ForgotPasswordScreen
 import com.example.benakmoume_yahi.screens.LandingScreen
 import com.example.benakmoume_yahi.screens.LoginOrSignUpScreen
 import com.example.benakmoume_yahi.screens.ProfileScreen
 import com.example.benakmoume_yahi.screens.RecipeDetailScreen
 import com.example.benakmoume_yahi.screens.RestaurantDetailScreen
 import com.example.benakmoume_yahi.screens.SearchScreen
+import com.example.benakmoume_yahi.screens.SignInScreen
+import com.example.benakmoume_yahi.screens.SignUpScreen
 import com.example.benakmoume_yahi.screens.WelcomeScreen
 import com.example.benakmoume_yahi.utils.restaurantList
 
@@ -40,25 +45,28 @@ import com.example.benakmoume_yahi.utils.restaurantList
 fun AppNavGraph(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier,
-    isLoggedIn: Boolean = true
+    isLoggedIn: Boolean = false
 ) {
     NavHost(
         navController = navController,
         startDestination = if (isLoggedIn) AppRoute.Landing.route else AppRoute.Welcome.route,
-        modifier = modifier.fillMaxSize()/*background(Color.Green).padding(10.dp)*/
+        modifier = modifier.fillMaxSize()
     ) {
         // Authentication flow
         composable(AppRoute.Welcome.route) { WelcomeScreen(navController) }
         composable(AppRoute.LoginOrSignUp.route) { LoginOrSignUpScreen(navController) }
+        composable(AppRoute.SignUp.route) { SignUpScreen(navController) }
+        composable(AppRoute.SignIn.route) { SignInScreen(navController) }
+        composable(AppRoute.ForgotPassword.route) { ForgotPasswordScreen(navController) }
+        composable(AppRoute.ChooseCuisine.route) { ChooseCuisineScreen(navController) }
+        composable(AppRoute.ChooseCategory.route) { ChooseCategoryScreen(navController) }
+
+
+
 
         // Landing page with nested bottom navigation graph
         composable(AppRoute.Landing.route) {
-            //Column (modifier = Modifier.background(Color.Red).fillMaxSize())
-
-                MainBottomNavGraph()
-
-
-
+            MainBottomNavGraph()
         }
     }
 }

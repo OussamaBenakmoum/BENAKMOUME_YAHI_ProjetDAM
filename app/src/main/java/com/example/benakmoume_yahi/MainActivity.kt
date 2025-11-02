@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.benakmoume_yahi.navigation.AppNavGraph
+import com.example.benakmoume_yahi.screens.SignInScreen
+import com.example.benakmoume_yahi.screens.SignUpScreen
+import com.example.benakmoume_yahi.screens.WelcomeScreen
 import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
 
 class MainActivity : ComponentActivity() {
@@ -25,6 +28,8 @@ class MainActivity : ComponentActivity() {
             BENAKMOUME_YAHITheme {
                 Scaffold(modifier = Modifier.fillMaxSize().background(Color.Black)) { innerPadding ->
                     AppNavGraph(modifier = Modifier.padding(innerPadding))
+                    //SignUpScreen(modifier = Modifier.padding(innerPadding))
+                    //WelcomeScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -36,6 +41,9 @@ class MainActivity : ComponentActivity() {
 //WelcomeScreen(modifier = Modifier.padding(innerPadding))
 //LoginOrSignUpScreen(modifier = Modifier.padding(innerPadding))
 //RecipeDetailScreen(modifier = Modifier.padding(innerPadding))
+//SignUpScreen(modifier = Modifier.padding(innerPadding))
+SignInScreen(modifier = Modifier.padding(innerPadding))
+
 
  */
 
