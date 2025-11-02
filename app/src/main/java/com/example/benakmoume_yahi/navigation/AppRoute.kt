@@ -40,10 +40,10 @@ sealed class AppRoute(val route: String, val title: String, val icon: androidx.c
     }
     //object RecipeDetail : AppRoute("recipe_detail", "Recette Détail")
 
-    sealed class RecipeDetail(mealId: Int) : AppRoute("recipe_detail/$mealId", "Recette Détail") {
+    sealed class RecipeDetail(mealId: String) : AppRoute("recipe_detail/$mealId", "Recette Détail") {
         companion object {
             const val ROUTE = "recipe_detail/{mealId}"
-            fun createRoute(mealId: Int) = "recipe_detail/$mealId"
+            fun createRoute(mealId: String) = "recipe_detail/$mealId"
         }
     }
 }

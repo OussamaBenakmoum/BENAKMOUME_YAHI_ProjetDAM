@@ -1,5 +1,7 @@
 package com.example.benakmoume_yahi.remote
 
+import com.example.benakmoume_yahi.models.AreasResponse
+import com.example.benakmoume_yahi.models.CategoriesResponse
 import com.example.benakmoume_yahi.models.Recipe
 import com.example.benakmoume_yahi.models.Restaurant
 import retrofit2.Response
@@ -41,5 +43,12 @@ interface RecipeApiService {
 
     @GET("restaurants/{restaurant_id}")
     suspend fun getRestaurantById(@Path("restaurant_id") restaurantId: Int): Response<Restaurant>
+
+
+    @GET("categories")
+    suspend fun getCategories(): Response<CategoriesResponse>
+
+    @GET("areas")
+    suspend fun getAreas(): Response<AreasResponse>
 
 }

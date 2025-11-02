@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.benakmoume_yahi.Auth.AuthRepository
 import com.example.benakmoume_yahi.navigation.AppRoute
 
 
@@ -27,9 +30,14 @@ fun LandingScreenPreview()
 @Composable
 fun LandingScreen(navController: NavHostController, modifier: Modifier = Modifier)
 {
+    val authRepo = AuthRepository.getInstance()
+    val currentUser by authRepo.currentUserFlow.collectAsState()
+
+
     Column(modifier = Modifier.fillMaxSize())
     {
         Text("Landing screen !")
+        Text(currentUser?.uid ?: "Non connecté")
         Button(onClick = {navController.navigate(AppRoute.RestaurantDetail.Companion.createRoute(1))}) { }
     }
 

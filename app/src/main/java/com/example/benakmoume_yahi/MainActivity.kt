@@ -14,7 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.benakmoume_yahi.navigation.AppNavGraph
+import com.example.benakmoume_yahi.screens.ChooseCategoryScreen
+import com.example.benakmoume_yahi.screens.ChooseCuisineScreen
+import com.example.benakmoume_yahi.screens.LandingScreen
 import com.example.benakmoume_yahi.screens.SignInScreen
 import com.example.benakmoume_yahi.screens.SignUpScreen
 import com.example.benakmoume_yahi.screens.WelcomeScreen
@@ -22,12 +26,15 @@ import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
             BENAKMOUME_YAHITheme {
                 Scaffold(modifier = Modifier.fillMaxSize().background(Color.Black)) { innerPadding ->
                     AppNavGraph(modifier = Modifier.padding(innerPadding))
+                    //ChooseCuisineScreen(navController)
                     //SignUpScreen(modifier = Modifier.padding(innerPadding))
                     //WelcomeScreen(modifier = Modifier.padding(innerPadding))
                 }
