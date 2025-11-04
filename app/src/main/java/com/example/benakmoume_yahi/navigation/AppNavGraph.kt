@@ -46,7 +46,7 @@ import com.example.benakmoume_yahi.screens.WelcomeScreen
 fun AppNavGraph(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier,
-    isLoggedIn: Boolean = false
+    isLoggedIn: Boolean = true
 ) {
     NavHost(
         navController = navController,

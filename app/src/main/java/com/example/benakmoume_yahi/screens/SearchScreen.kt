@@ -272,7 +272,8 @@ fun SearchScreen(
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
+                            )
+                            {
                                 items(displayedRestaurants.size) { index ->
                                     val restaurant = displayedRestaurants[index]
                                     Column {

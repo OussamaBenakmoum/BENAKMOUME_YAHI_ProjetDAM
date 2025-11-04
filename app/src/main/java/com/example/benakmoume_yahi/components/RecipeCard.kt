@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 @Composable
-fun RecipeCard(recipe: com.example.benakmoume_yahi.models.Recipe, onClick: () -> Unit) {
+fun RecipeCard(recipe: com.example.benakmoume_yahi.models.Recipe, Airecommended: Boolean = false, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -44,7 +44,7 @@ fun RecipeCard(recipe: com.example.benakmoume_yahi.models.Recipe, onClick: () ->
                         drawContent()
                         drawRect(
                             brush = Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black),
+                                 colors =  if (Airecommended) listOf(Color.Transparent, Color(0xFF7A5AF8)) else listOf(Color.Transparent, Color.Black)
                             ),
                         )
                     },

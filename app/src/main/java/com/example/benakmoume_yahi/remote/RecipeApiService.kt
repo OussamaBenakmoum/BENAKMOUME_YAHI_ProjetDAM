@@ -33,6 +33,7 @@ interface RecipeApiService {
     ): Response<List<Recipe>>
 
 
+
     @GET("restaurants/search/{substring}")
     suspend fun searchRestaurantBySubstr(
         @Path("substring") substring: String
@@ -50,5 +51,6 @@ interface RecipeApiService {
 
     @GET("areas")
     suspend fun getAreas(): Response<AreasResponse>
+
 
 }
