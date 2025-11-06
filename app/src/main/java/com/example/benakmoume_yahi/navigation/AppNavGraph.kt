@@ -30,6 +30,7 @@ import androidx.navigation.navArgument
 import com.example.benakmoume_yahi.screens.CartScreen
 import com.example.benakmoume_yahi.screens.ChooseCategoryScreen
 import com.example.benakmoume_yahi.screens.ChooseCuisineScreen
+import com.example.benakmoume_yahi.screens.FavoriteScreen
 import com.example.benakmoume_yahi.screens.ForgotPasswordScreen
 import com.example.benakmoume_yahi.screens.LandingScreen
 import com.example.benakmoume_yahi.screens.LoginOrSignUpScreen
@@ -84,7 +85,8 @@ fun MainBottomNavGraph() {
     val bottomBarRoutes = listOf(
         AppRoute.Landing.route,
         AppRoute.Search.route,
-        AppRoute.Cart.route,
+        //AppRoute.Cart.route,
+        AppRoute.Favorite.route,
         AppRoute.Profile.route
     )
 
@@ -103,7 +105,9 @@ fun MainBottomNavGraph() {
         ) {
             composable(AppRoute.Landing.route) { LandingScreen(bottomNavController) }
             composable(AppRoute.Search.route) { SearchScreen(bottomNavController) }
-            composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
+            //composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
+            composable(AppRoute.Favorite.route) { FavoriteScreen(bottomNavController) }
+
             composable(AppRoute.Profile.route) { ProfileScreen(bottomNavController) }
 
             // Detail screen (Bottom bar hidden)
@@ -111,7 +115,7 @@ fun MainBottomNavGraph() {
                 route = AppRoute.RecipeDetail.Companion.ROUTE, // "restaurant_detail/{restaurantId}"
                 arguments = listOf(navArgument("mealId") { type = NavType.StringType })
             ) { backStackEntry ->
-                val mealId = backStackEntry.arguments?.getString("mealId") ?: "52981"
+                val mealId = backStackEntry.arguments?.getString("mealId") ?: "0"
                 if (/*restaurant != null*/1 == 1) {
                     RecipeDetailScreen(navController = bottomNavController, mealId)
                 } else {
@@ -124,7 +128,6 @@ fun MainBottomNavGraph() {
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: 0
-                //val restaurant = restaurantList.find { it.id == restaurantId }
                 Log.d("MyApp", "${restaurantId}")
                 if (restaurantId != 0) {
 
@@ -144,7 +147,8 @@ fun BottomNavBar(navController: NavHostController) {
     val items = listOf(
         AppRoute.Landing,
         AppRoute.Search,
-        AppRoute.Cart,
+        //AppRoute.Cart,
+        AppRoute.Favorite,
         AppRoute.Profile
     )
     NavigationBar (windowInsets = WindowInsets(bottom = 0.dp, top = 0.dp)){

@@ -7,6 +7,7 @@ import androidx.compose.ui.res.vectorResource
 
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -28,6 +29,7 @@ sealed class AppRoute(val route: String, val title: String, val icon: androidx.c
     object Cart : AppRoute("cart", "Panier", Icons.Filled.ShoppingCart)
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)
 
+    object Favorite : AppRoute("favorite", "Favoris", Icons.Filled.FavoriteBorder)
 
 
 

@@ -34,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
@@ -49,6 +50,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.benakmoume_yahi.Auth.AuthRepository
 import com.example.benakmoume_yahi.R
+import com.example.benakmoume_yahi.components.OSMRestaurantMap
 import com.example.benakmoume_yahi.components.RecipeCard
 import com.example.benakmoume_yahi.components.RestaurantCard
 import com.example.benakmoume_yahi.navigation.AppRoute
@@ -72,6 +74,7 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
     val uiState = viewModel.uiState
 
     val uiStateAiRecipe by viewModelAiRecipe.uiState.collectAsState()
+
 
     viewModelAiRecipe.onSearchQueryChanged("e")
 
@@ -142,13 +145,14 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
                                     //onClick = { Log.d("test","ddd") },
                                     shape = CircleShape,
                                     color = Color(0xFFF1F2F4),
+
                                     tonalElevation = 0.dp,
                                     shadowElevation = 0.dp,
-                                    border = null
+                                    border = BorderStroke(1.dp, Color(0xFFA90B3D))
                                 ) {
                                     Text(
                                         text = uiState.categories[index],
-                                        color = Color.Black,
+                                        color = Color(0xFFA90B3D),
                                         style = MaterialTheme.typography.titleSmall,
                                         modifier = Modifier.padding(
                                             horizontal = 18.dp,
@@ -181,6 +185,50 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
                     }
                 }
             }
+            Card(
+                modifier = Modifier.fillMaxSize().padding(vertical = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+                border = BorderStroke(0.5.dp, Color(0xFF7A5AF8))
+            )
+            {
+                Log.d("benakout", uiStateAiRecipe.restaurants.size.toString())
+                when {
+                    uiStateAiRecipe.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
+                        }
+                    }
+
+                    uiStateAiRecipe.error != null -> {
+                        Text(
+                            text = "Erreur: ${uiState.error}",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    else -> {
+                        val displayedRestaurants = uiStateAiRecipe.restaurants
+
+                        OSMRestaurantMap(
+                            latitude = 45.719638,
+                            longitude = 4.918317,
+                            restaurantName = "Vous",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clipToBounds(),
+                            displayedRestaurants
+                        )
+
+
+                    }
+                }
+
+            }
 
         }
 
@@ -190,3 +238,4 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
 
 
 }
+
