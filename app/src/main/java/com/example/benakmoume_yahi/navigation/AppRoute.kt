@@ -30,6 +30,7 @@ sealed class AppRoute(val route: String, val title: String, val icon: ImageVecto
     // Bottom navigation
     object Landing : AppRoute("landing", "Accueil", Icons.Filled.Home)
     object Search : AppRoute("search", "Recherche", Icons.Filled.Search)
+    object Favorite: AppRoute("favorite","Favoris",   Icons.Filled.FavoriteBorder)
     object Cart : AppRoute("cart", "Panier", Icons.Filled.ShoppingCart)
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)
 
