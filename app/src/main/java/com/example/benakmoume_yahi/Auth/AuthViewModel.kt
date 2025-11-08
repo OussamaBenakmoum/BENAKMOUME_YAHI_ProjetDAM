@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -27,30 +28,39 @@ class AuthViewModel(
     private val _state = MutableStateFlow(AuthUiState(user = repo.currentUser))
     val state: StateFlow<AuthUiState> = _state
 
-    // Inscription email + profil (inchangé, écrit uid)
+    init {
+        // Réagit aux changements FirebaseAuth via le flow du repo
+        viewModelScope.launch {
+            repo.currentUserFlow.collectLatest { user: FirebaseUser? ->
+                _state.update { it.copy(user = user) }
+            }
+        }
+    }
+
+    // Email sign-up avec création du profil Firestore
     fun signUp(email: String, password: String, firstName: String, lastName: String) {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
             val res = repo.signUp(email, password)
             res.fold(
                 onSuccess = { user ->
-                    _state.update { it.copy(loading = false, user = user, error = null) }
-                    viewModelScope.launch {
-                        try {
-                            val profile = userProfileChangeRequest { displayName = "$firstName $lastName" }
-                            user.updateProfile(profile).await()
-                            val doc = mapOf(
-                                "uid" to user.uid,
-                                "firstName" to firstName,
-                                "lastName" to lastName,
-                                "email" to email,
-                                "photoUrl" to null,
-                                "createdAt" to FieldValue.serverTimestamp()
-                            )
-                            db.collection("users").document(user.uid).set(doc).await()
-                        } catch (e: Exception) {
-                            _state.update { it.copy(error = e.message) }
-                        }
+                    _state.update { it.copy(loading = false, user = user) }
+                    try {
+                        val profile = userProfileChangeRequest { displayName = "$firstName $lastName" }
+                        user.updateProfile(profile).await()
+                        val doc = mapOf(
+                            "uid" to user.uid,
+                            "firstName" to firstName,
+                            "lastName" to lastName,
+                            "email" to email,
+                            "photoUrl" to null,
+                            "profileCompleted" to true,
+                            "createdAt" to FieldValue.serverTimestamp()
+                        )
+                        db.collection("users").document(user.uid)
+                            .set(doc, SetOptions.merge()).await()
+                    } catch (e: Exception) {
+                        _state.update { it.copy(error = e.message) }
                     }
                 },
                 onFailure = { e ->
@@ -60,20 +70,7 @@ class AuthViewModel(
         }
     }
 
-    fun signUp(email: String, password: String) {
-        viewModelScope.launch {
-            _state.update { it.copy(loading = true, error = null) }
-            val res = repo.signUp(email, password)
-            _state.update { s ->
-                res.fold(
-                    onSuccess = { user -> s.copy(loading = false, user = user) },
-                    onFailure = { e -> s.copy(loading = false, error = e.message ?: "Erreur") }
-                )
-            }
-        }
-    }
-
-    // Connexion email
+    // Email sign-in
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
@@ -87,7 +84,7 @@ class AuthViewModel(
         }
     }
 
-    // Google: après signInWithCredential, décider navigation
+    // Après Google sign-in: créer doc minimal si absent, puis router selon profileCompleted
     fun onGoogleAuthSuccess(
         navToComplete: () -> Unit,
         navNext: () -> Unit
@@ -95,26 +92,23 @@ class AuthViewModel(
         val user = repo.currentUser ?: return@launch
         _state.update { it.copy(user = user) }
 
-        val snap = db.collection("users").document(user.uid).get().await()
-        val completed = snap.getBoolean("profileCompleted") == true
-        if (!completed) {
-            // Créer doc minimal si absent
-            if (!snap.exists()) {
-                val base = mapOf(
-                    "uid" to user.uid,
-                    "email" to (user.email ?: ""),
-                    "profileCompleted" to false,
-                    "createdAt" to FieldValue.serverTimestamp()
-                )
-                db.collection("users").document(user.uid).set(base, SetOptions.merge()).await()
-            }
-            navToComplete()
-        } else {
-            navNext()
+        val ref = db.collection("users").document(user.uid)
+        var snap = ref.get().await()
+        if (!snap.exists()) {
+            val base = mapOf(
+                "uid" to user.uid,
+                "email" to (user.email ?: ""),
+                "profileCompleted" to false,
+                "createdAt" to FieldValue.serverTimestamp()
+            )
+            ref.set(base, SetOptions.merge()).await()
+            snap = ref.get().await() // éviter une lecture obsolète
         }
+        val completed = snap.getBoolean("profileCompleted") ?: false
+        if (completed) navNext() else navToComplete()
     }
 
-    // Google: enregistrer prénom/nom, marquer comme complété, puis continuer
+    // Compléter profil Google
     fun completeGoogleProfile(
         firstName: String,
         lastName: String,
@@ -125,7 +119,6 @@ class AuthViewModel(
         try {
             val profile = userProfileChangeRequest { displayName = "$firstName $lastName" }
             user.updateProfile(profile).await()
-
             val doc = mapOf(
                 "uid" to user.uid,
                 "firstName" to firstName,
@@ -135,36 +128,10 @@ class AuthViewModel(
                 "updatedAt" to FieldValue.serverTimestamp()
             )
             db.collection("users").document(user.uid)
-                .set(doc, SetOptions.merge())
-                .await()
-
+                .set(doc, SetOptions.merge()).await()
             onDone()
         } catch (e: Exception) {
             onError(e.message)
-        }
-    }
-
-
-    // Mise à jour profil (fusion)
-    fun saveProfile(firstName: String, lastName: String, email: String) {
-        val user = _state.value.user ?: return
-        viewModelScope.launch {
-            try {
-                val profile = userProfileChangeRequest { displayName = "$firstName $lastName" }
-                user.updateProfile(profile).await()
-                val doc = mapOf(
-                    "uid" to user.uid,
-                    "firstName" to firstName,
-                    "lastName" to lastName,
-                    "email" to email,
-                    "updatedAt" to FieldValue.serverTimestamp()
-                )
-                db.collection("users").document(user.uid)
-                    .set(doc, SetOptions.merge())
-                    .await()
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e.message ?: "Erreur profil") }
-            }
         }
     }
 
