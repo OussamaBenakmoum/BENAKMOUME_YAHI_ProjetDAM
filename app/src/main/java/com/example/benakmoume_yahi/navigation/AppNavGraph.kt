@@ -56,6 +56,7 @@ fun AppNavGraph(
         // Authentication flow
         composable(AppRoute.Welcome.route) { WelcomeScreen(navController) }
         composable(AppRoute.LoginOrSignUp.route) { LoginOrSignUpScreen(navController) }
+        composable(AppRoute.GoogleSignUp.route) { GoogleSignUpScreen(nav = navController) }
         composable(AppRoute.SignUp.route) { SignUpScreen(navController) }
         composable(AppRoute.SignIn.route) { SignInScreen(navController) }
         composable(AppRoute.ForgotPassword.route) { ForgotPasswordScreen(navController) }
@@ -104,7 +105,24 @@ fun MainBottomNavGraph() {
             composable(AppRoute.Landing.route) { LandingScreen(bottomNavController) }
             composable(AppRoute.Search.route) { SearchScreen(bottomNavController) }
             composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
-            composable(AppRoute.Profile.route) { ProfileScreen(bottomNavController) }
+                       composable(AppRoute.Profile.route) {
+                ProfileScreen(
+                    nav = bottomNavController,
+                    onFavoritesCuisines = { bottomNavController.navigate(AppRoute.ChooseCuisine.route) },
+                    onFavoritesCategories = { bottomNavController.navigate(AppRoute.ChooseCategory.route) },
+                    onSettings = { /* TODO */ },
+                    onAbout = { /* TODO */ },
+                    onSignOut = {
+                        // Use root navigator to clear the entire stack on sign out
+                        rootNav.navigate(AppRoute.SignIn.route) {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+            composable(AppRoute.ChooseCuisine.route) { ChooseCuisineScreen(bottomNavController) }
+            composable(AppRoute.ChooseCategory.route) { ChooseCategoryScreen(bottomNavController) }
 
             // Detail screen (Bottom bar hidden)
             composable(
