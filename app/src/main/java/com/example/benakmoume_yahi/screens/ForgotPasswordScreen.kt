@@ -6,19 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +15,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -41,10 +30,24 @@ fun ForgotPasswordScreen(
     val fieldShape = RoundedCornerShape(22.dp)
     var email by remember { mutableStateOf("") }
     var isEmailError by remember { mutableStateOf(false) }
+    var sending by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val auth = remember { FirebaseAuth.getInstance() }
+
+    // Option: forcer l’ouverture dans l’app via Hosting + deep link
+    val actionCodeSettings = remember {
+        ActionCodeSettings.newBuilder()
+            .setUrl("https://gogourmet-1e044.web.app/reset-return")
+            .setHandleCodeInApp(true)
+            .setAndroidPackageName(
+                "com.example.benakmoume_yahi",
+                true,   // installIfNotAvailable
+                "1"     // min version
+            )
+            .build()
+    }
 
     Scaffold(
         topBar = {
@@ -116,25 +119,47 @@ fun ForgotPasswordScreen(
                 onClick = {
                     val valid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
                     isEmailError = !valid
-                    if (!valid) return@Button
+                    if (!valid || sending) return@Button
 
                     scope.launch {
+                        sending = true
                         try {
-                            auth.sendPasswordResetEmail(email).await()
+                            // Variante 1: simple
+                            // auth.sendPasswordResetEmail(email).await()
+
+                            // Variante 2 (recommandée): via actionCodeSettings pour ouvrir l’app
+                            auth.sendPasswordResetEmail(email, actionCodeSettings).await()
+
                             snackbarHostState.showSnackbar("Email de réinitialisation envoyé")
                             navController.navigateUp()
                         } catch (e: Exception) {
                             snackbarHostState.showSnackbar(e.message ?: "Erreur lors de l’envoi")
+                        } finally {
+                            sending = false
                         }
                     }
                 },
+                enabled = !sending && !isEmailError && email.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(40.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = mainColor)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = mainColor,
+                    contentColor = Color.White,
+                    disabledContainerColor = mainColor.copy(alpha = 0.6f), // même teinte quand disabled
+                    disabledContentColor = Color.White.copy(alpha = 0.9f)
+                )
             ) {
-                Text("Continuer", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                if (sending) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Text("Continuer", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }

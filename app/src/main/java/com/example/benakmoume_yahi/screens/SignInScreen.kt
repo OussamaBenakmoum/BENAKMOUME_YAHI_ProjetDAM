@@ -196,7 +196,12 @@ fun SignInScreen(
                         .fillMaxWidth()
                         .height(54.dp),
                     shape = RoundedCornerShape(40.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = mainColor)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = mainColor,
+                        contentColor = Color.White,
+                        disabledContainerColor = mainColor.copy(alpha = 0.6f),
+                        disabledContentColor = Color.White.copy(alpha = 0.9f)
+                    )
                 ) {
                     if (ui.loading) {
                         CircularProgressIndicator(
@@ -208,6 +213,7 @@ fun SignInScreen(
                         Text("Se connecter", color = Color.White, style = MaterialTheme.typography.titleMedium)
                     }
                 }
+
 
                 // Erreur backend éventuelle
                 if (ui.error != null) {

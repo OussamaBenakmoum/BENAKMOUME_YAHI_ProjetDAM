@@ -62,18 +62,28 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
-    // Coroutines pour Tasks.await()
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+//    // Coroutines pour Tasks.await()
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+//    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+//    implementation("com.google.firebase:firebase-auth-ktx")
 
     //implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
     //implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
     //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    //implementation("com.google.firebase:firebase-auth-ktx")
 
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+
+
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")// GetGoogleIdOption + GoogleIdTokenCredential
 
 
     implementation(libs.androidx.core.ktx)
@@ -90,6 +100,8 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.foundation)
+    implementation(libs.googleid)
+    //implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

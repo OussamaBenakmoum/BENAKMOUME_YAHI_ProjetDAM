@@ -12,34 +12,38 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 
-sealed class AppRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector? = null) {
-    // Authentication flow
+sealed class AppRoute(val route: String, val title: String, val icon: ImageVector? = null) {
+
+    // Auth flow
     object Welcome : AppRoute("welcome", "Bienvenue")
     object LoginOrSignUp : AppRoute("login_or_signup", "Authentification")
+    object GoogleSignUp : AppRoute("google_signup", "Compléter profil")
+
     object SignUp : AppRoute("SignUp", "Inscription")
     object SignIn : AppRoute("SignIn", "Connexion")
     object ForgotPassword : AppRoute("ForgotPassword", "Mot de passe Oublié")
+
+    // Choix préférences
     object ChooseCuisine : AppRoute("choose_cuisine", "Choisir une cuisine")
     object ChooseCategory : AppRoute("choose_category", "Choisir une catégorie")
 
-    // Main app flow (bottom navigation)
-    object Landing : AppRoute("landing", "Accueil",Icons.Filled.Home)
+    // Bottom navigation
+    object Landing : AppRoute("landing", "Accueil", Icons.Filled.Home)
     object Search : AppRoute("search", "Recherche", Icons.Filled.Search)
     object Cart : AppRoute("cart", "Panier", Icons.Filled.ShoppingCart)
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)
 
+    // Ecrans profil ciblés
+    //object FavouritesCuisine : AppRoute("favourites_cuisine", "Mes cuisines préférées")
+    //object FavouritesCategory : AppRoute("favourites_category", "Mes catégories préférées")
 
-
-
-    // Detail screens within the main flow
+    // Détails (inchangé)
     sealed class RestaurantDetail(restaurantId: Int) : AppRoute("restaurant_detail/$restaurantId", "Restaurant Détail") {
         companion object {
             const val ROUTE = "restaurant_detail/{restaurantId}"
             fun createRoute(restaurantId: Int) = "restaurant_detail/$restaurantId"
         }
     }
-    //object RecipeDetail : AppRoute("recipe_detail", "Recette Détail")
-
     sealed class RecipeDetail(mealId: Int) : AppRoute("recipe_detail/$mealId", "Recette Détail") {
         companion object {
             const val ROUTE = "recipe_detail/{mealId}"

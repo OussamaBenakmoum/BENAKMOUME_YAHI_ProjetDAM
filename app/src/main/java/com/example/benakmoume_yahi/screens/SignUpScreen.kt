@@ -5,9 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -25,7 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.benakmoume_yahi.R
 import com.example.benakmoume_yahi.navigation.AppRoute
-import com.example.benakmoume_yahi.Auth.AuthViewModel   // adapte le package si différent
+import com.example.benakmoume_yahi.Auth.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,14 +43,15 @@ fun SignUpScreen(
     var password  by remember { mutableStateOf("") }
     var confirm   by remember { mutableStateOf("") }
 
+    var firstTouched by remember { mutableStateOf(false) }
+    var lastTouched  by remember { mutableStateOf(false) }
+
     var isEmailError    by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
     var isConfirmError  by remember { mutableStateOf(false) }
 
-    // Etat d'auth
     val ui by vm.state.collectAsState()
 
-    // Navigation après succès
     LaunchedEffect(ui.user) {
         if (ui.user != null) {
             navController.navigate(AppRoute.ChooseCuisine.route) {
@@ -105,30 +106,44 @@ fun SignUpScreen(
                 ) {
                     OutlinedTextField(
                         value = firstName,
-                        onValueChange = { firstName = it },
+                        onValueChange = { firstName = it; firstTouched = true },
                         placeholder = { Text("Prénom") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
                         shape = fieldShape,
+                        isError = firstTouched && firstName.isBlank(),
+                        supportingText = {
+                            if (firstTouched && firstName.isBlank()) {
+                                Text("Prénom obligatoire", color = mainColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = Color(0xFFF1F2F4),
                             unfocusedContainerColor = Color(0xFFF1F2F4),
                             focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent
+                            unfocusedBorderColor = Color.Transparent,
+                            errorBorderColor = mainColor
                         )
                     )
                     OutlinedTextField(
                         value = lastName,
-                        onValueChange = { lastName = it },
+                        onValueChange = { lastName = it; lastTouched = true },
                         placeholder = { Text("Nom") },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
                         shape = fieldShape,
+                        isError = lastTouched && lastName.isBlank(),
+                        supportingText = {
+                            if (lastTouched && lastName.isBlank()) {
+                                Text("Nom obligatoire", color = mainColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = Color(0xFFF1F2F4),
                             unfocusedContainerColor = Color(0xFFF1F2F4),
                             focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent
+                            unfocusedBorderColor = Color.Transparent,
+                            errorBorderColor = mainColor
                         )
                     )
                 }
@@ -148,11 +163,8 @@ fun SignUpScreen(
                     isError = isEmailError,
                     supportingText = {
                         if (isEmailError) {
-                            Text(
-                                "Format email invalide. Ex: email@email.com",
-                                color = mainColor,
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Text("Format email invalide. Ex: email@email.com",
+                                color = mainColor, style = MaterialTheme.typography.bodySmall)
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -227,15 +239,19 @@ fun SignUpScreen(
 
                 Spacer(Modifier.height(22.dp))
 
-                // Bouton inscription appelant Firebase via ViewModel
                 Button(
                     onClick = {
+                        val firstErr = firstName.isBlank()
+                        val lastErr  = lastName.isBlank()
+                        firstTouched = true
+                        lastTouched = true
+
                         isEmailError = email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()
                         isPasswordError = password.length < 8
                         isConfirmError = confirm != password
 
-                        if (!isEmailError && !isPasswordError && !isConfirmError) {
-                            vm.signUp(email, password)
+                        if (!firstErr && !lastErr && !isEmailError && !isPasswordError && !isConfirmError) {
+                            vm.signUp(email, password, firstName.trim(), lastName.trim())
                         }
                     },
                     enabled = !ui.loading,
@@ -254,7 +270,6 @@ fun SignUpScreen(
                     }
                 }
 
-                // Erreur backend éventuelle
                 if (ui.error != null) {
                     Spacer(Modifier.height(12.dp))
                     Text(
@@ -267,7 +282,7 @@ fun SignUpScreen(
 
                 Spacer(Modifier.height(18.dp))
 
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Vous avez déjà un compte ?", color = Color.Gray)
                     Spacer(Modifier.width(6.dp))
                     Text(
