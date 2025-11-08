@@ -1,12 +1,10 @@
 package com.example.benakmoume_yahi.navigation
 
-import android.R
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -30,8 +28,8 @@ sealed class AppRoute(val route: String, val title: String, val icon: ImageVecto
     // Bottom navigation
     object Landing : AppRoute("landing", "Accueil", Icons.Filled.Home)
     object Search : AppRoute("search", "Recherche", Icons.Filled.Search)
-    object Favorite: AppRoute("favorite","Favoris",   Icons.Filled.FavoriteBorder)
     object Cart : AppRoute("cart", "Panier", Icons.Filled.ShoppingCart)
+    object Favorite: AppRoute("favorite","Favoris",   Icons.Filled.FavoriteBorder)
     object Profile : AppRoute("profile", "Profil", Icons.Filled.Person)
 
     // Ecrans profil ciblés
@@ -48,7 +46,7 @@ sealed class AppRoute(val route: String, val title: String, val icon: ImageVecto
     sealed class RecipeDetail(mealId: Int) : AppRoute("recipe_detail/$mealId", "Recette Détail") {
         companion object {
             const val ROUTE = "recipe_detail/{mealId}"
-            fun createRoute(mealId: Int) = "recipe_detail/$mealId"
+            fun createRoute(mealId: String) = "recipe_detail/$mealId"
         }
     }
 }
