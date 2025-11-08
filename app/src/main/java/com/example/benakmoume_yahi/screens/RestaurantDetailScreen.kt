@@ -3,7 +3,6 @@ package com.example.benakmoume_yahi.screens
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,30 +14,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.benakmoume_yahi.components.OSMRestaurantMap
 import com.example.benakmoume_yahi.models.Restaurant
 import com.example.benakmoume_yahi.viewmodel.RestaurantDetailViewModel
 import com.example.benakmoume_yahi.viewmodel.RestaurantUiState
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 
 @Composable
 fun RestaurantDetailScreen(
@@ -103,6 +92,8 @@ fun RestaurantDetailContent(
     navController: NavHostController
 ) {
     val context = LocalContext.current
+    val tmplist = listOf(restaurant)
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Image section
@@ -223,51 +214,9 @@ fun RestaurantDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
-                    .clipToBounds()
+                    .clipToBounds(),
+                tmplist
             )
         }
     }
-}
-
-@Composable
-fun OSMRestaurantMap(
-    latitude: Double,
-    longitude: Double,
-    restaurantName: String,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-
-    AndroidView(
-        factory = { ctx ->
-            Configuration.getInstance().load(
-                ctx,
-                androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx)
-            )
-            MapView(ctx).apply {
-                setTileSource(TileSourceFactory.MAPNIK)
-                setMultiTouchControls(true)
-
-                val startPoint = GeoPoint(latitude, longitude)
-                controller.setZoom(15.0)
-                controller.setCenter(startPoint)
-
-                val marker = Marker(this)
-                marker.position = startPoint
-                marker.title = restaurantName
-                marker.setOnMarkerClickListener { _, _ ->
-                    val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude")
-                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-                        setPackage("com.google.android.apps.maps")
-                    }
-                    if (mapIntent.resolveActivity(context.packageManager) != null) {
-                        context.startActivity(mapIntent)
-                    }
-                    true
-                }
-                overlays.add(marker)
-            }
-        },
-        modifier = modifier
-    )
 }
