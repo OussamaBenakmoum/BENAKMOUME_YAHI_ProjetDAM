@@ -1,38 +1,33 @@
 package com.example.benakmoume_yahi.navigation
 
 import android.R
-import android.util.Log
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
+
+// Screens
 import com.example.benakmoume_yahi.screens.CartScreen
 import com.example.benakmoume_yahi.screens.ChooseCategoryScreen
 import com.example.benakmoume_yahi.screens.ChooseCuisineScreen
+import com.example.benakmoume_yahi.screens.FavoriteScreen
 import com.example.benakmoume_yahi.screens.ForgotPasswordScreen
+import com.example.benakmoume_yahi.screens.GoogleSignUpScreen
 import com.example.benakmoume_yahi.screens.LandingScreen
 import com.example.benakmoume_yahi.screens.LoginOrSignUpScreen
+import com.example.benakmoume_yahi.screens.NewPasswordScreen
 import com.example.benakmoume_yahi.screens.ProfileScreen
 import com.example.benakmoume_yahi.screens.RecipeDetailScreen
 import com.example.benakmoume_yahi.screens.RestaurantDetailScreen
@@ -40,7 +35,6 @@ import com.example.benakmoume_yahi.screens.SearchScreen
 import com.example.benakmoume_yahi.screens.SignInScreen
 import com.example.benakmoume_yahi.screens.SignUpScreen
 import com.example.benakmoume_yahi.screens.WelcomeScreen
-//import com.example.benakmoume_yahi.utils.restaurantList
 
 @Composable
 fun AppNavGraph(
@@ -53,44 +47,63 @@ fun AppNavGraph(
         startDestination = if (isLoggedIn) AppRoute.Landing.route else AppRoute.Welcome.route,
         modifier = modifier.fillMaxSize()
     ) {
-        // Authentication flow
+        // Auth flow
         composable(AppRoute.Welcome.route) { WelcomeScreen(navController) }
         composable(AppRoute.LoginOrSignUp.route) { LoginOrSignUpScreen(navController) }
-        composable(AppRoute.GoogleSignUp.route) { GoogleSignUpScreen(nav = navController) }
         composable(AppRoute.SignUp.route) { SignUpScreen(navController) }
         composable(AppRoute.SignIn.route) { SignInScreen(navController) }
         composable(AppRoute.ForgotPassword.route) { ForgotPasswordScreen(navController) }
+
+        // Deep link reset password → NewPasswordScreen
+        composable(
+            route = "new_password?oobCode={oobCode}",
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://gogourmet-1e044.web.app/reset-return?oobCode={oobCode}"
+                },
+                navDeepLink {
+                    uriPattern = "https://gogourmet-1e044.firebaseapp.com/reset-return?oobCode={oobCode}"
+                }
+            ),
+            arguments = listOf(
+                navArgument("oobCode") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) { entry ->
+            val code = entry.arguments?.getString("oobCode").orEmpty()
+            NewPasswordScreen(navController = navController, oobCode = code)
+        }
+
+        // Google profile completion
+        composable(AppRoute.GoogleSignUp.route) { GoogleSignUpScreen(nav = navController) }
+
+        // Optional preference screens accessible from auth
         composable(AppRoute.ChooseCuisine.route) { ChooseCuisineScreen(navController) }
         composable(AppRoute.ChooseCategory.route) { ChooseCategoryScreen(navController) }
 
-
-
-
-        // Landing page with nested bottom navigation graph
+        // Main graph with bottom bar
         composable(AppRoute.Landing.route) {
-            MainBottomNavGraph()
+            MainBottomNavGraph(rootNav = navController)
         }
     }
 }
 
 @Composable
-fun MainBottomNavGraph() {
+fun MainBottomNavGraph(rootNav: NavHostController) {
     val bottomNavController = rememberNavController()
-
-    // Get current route
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Define routes where the BottomNavBar should be visible
+    // Decide tabs: keep Favorite; keep Cart commented if not in current design
     val bottomBarRoutes = listOf(
         AppRoute.Landing.route,
         AppRoute.Search.route,
-        AppRoute.Cart.route,
+        AppRoute.Favorite.route,
         AppRoute.Profile.route
+        // If you want Cart instead of Favorite, swap here and in BottomNavBar items
     )
 
-    // Conditionally show BottomNavBar only for selected routes
-    Scaffold( contentWindowInsets = WindowInsets(top= 0.dp),
+    Scaffold(
+        contentWindowInsets = WindowInsets(top = 0.dp),
         bottomBar = {
             if (currentRoute in bottomBarRoutes) {
                 BottomNavBar(bottomNavController)
@@ -100,12 +113,14 @@ fun MainBottomNavGraph() {
         NavHost(
             navController = bottomNavController,
             startDestination = AppRoute.Landing.route,
-            modifier = Modifier.padding(innerPadding)/*.background(Color.Cyan).padding(10.dp)*/
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(AppRoute.Landing.route) { LandingScreen(bottomNavController) }
             composable(AppRoute.Search.route) { SearchScreen(bottomNavController) }
-            composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
-                       composable(AppRoute.Profile.route) {
+            composable(AppRoute.Favorite.route) { FavoriteScreen(bottomNavController) }
+            // composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
+
+            composable(AppRoute.Profile.route) {
                 ProfileScreen(
                     nav = bottomNavController,
                     onFavoritesCuisines = { bottomNavController.navigate(AppRoute.ChooseCuisine.route) },
@@ -121,38 +136,26 @@ fun MainBottomNavGraph() {
                     }
                 )
             }
+
+            // Preference screens reachable from Profile
             composable(AppRoute.ChooseCuisine.route) { ChooseCuisineScreen(bottomNavController) }
             composable(AppRoute.ChooseCategory.route) { ChooseCategoryScreen(bottomNavController) }
 
-            // Detail screen (Bottom bar hidden)
+            // Details (no bottom bar state change needed)
             composable(
-                route = AppRoute.RecipeDetail.Companion.ROUTE, // "restaurant_detail/{restaurantId}"
+                route = AppRoute.RecipeDetail.ROUTE,
                 arguments = listOf(navArgument("mealId") { type = NavType.StringType })
             ) { backStackEntry ->
-                val mealId = backStackEntry.arguments?.getString("mealId") ?: "52981"
-                if (/*restaurant != null*/1 == 1) {
-                    RecipeDetailScreen(navController = bottomNavController, mealId)
-                } else {
-                    // Gérer la recette introuvable (erreur, écran fallback...)
-                }
+                val mealId = backStackEntry.arguments?.getString("mealId") ?: return@composable
+                RecipeDetailScreen(navController = bottomNavController, mealId = mealId)
             }
-
             composable(
-                route = AppRoute.RestaurantDetail.Companion.ROUTE, // "restaurant_detail/{restaurantId}"
+                route = AppRoute.RestaurantDetail.ROUTE,
                 arguments = listOf(navArgument("restaurantId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: 0
-                //val restaurant = restaurantList.find { it.id == restaurantId }
-                Log.d("MyApp", "${restaurantId}")
-                if (restaurantId != 0) {
-
-                    RestaurantDetailScreen(navController = bottomNavController, restaurantId)
-                } else {
-
-                    // Gérer le restaurant introuvable (erreur, écran fallback...)
-                }
+                val restaurantId = backStackEntry.arguments?.getInt("restaurantId") ?: return@composable
+                RestaurantDetailScreen(navController = bottomNavController, restaurantId = restaurantId)
             }
-
         }
     }
 }
@@ -162,10 +165,11 @@ fun BottomNavBar(navController: NavHostController) {
     val items = listOf(
         AppRoute.Landing,
         AppRoute.Search,
-        AppRoute.Cart,
+        AppRoute.Favorite,
         AppRoute.Profile
+        // Or swap Favorite with AppRoute.Cart to match your design
     )
-    NavigationBar (windowInsets = WindowInsets(bottom = 0.dp, top = 0.dp)){
+    NavigationBar(windowInsets = WindowInsets(bottom = 0.dp, top = 0.dp)) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
@@ -185,7 +189,7 @@ fun BottomNavBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
-                        imageVector = screen.icon ?: ImageVector.vectorResource(R.drawable.gallery_thumb),
+                        imageVector = screen.icon ?: ImageVector.vectorResource(R.drawable.ic_menu_gallery),
                         contentDescription = screen.title
                     )
                 },
@@ -200,8 +204,8 @@ fun BottomNavBar(navController: NavHostController) {
             )
         }
     }
-
 }
+
 
 @Preview(showBackground = true)
 @Composable
