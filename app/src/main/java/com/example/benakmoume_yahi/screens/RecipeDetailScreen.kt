@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -18,6 +20,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -31,17 +34,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.benakmoume_yahi.Auth.AuthRepository
 import com.example.benakmoume_yahi.R
 import com.example.benakmoume_yahi.components.InstructionCard
 import com.example.benakmoume_yahi.components.OrderBottomSheet
+import com.example.benakmoume_yahi.components.RecipeCard
 import com.example.benakmoume_yahi.components.ReviewCard
 import com.example.benakmoume_yahi.components.YouTubePlayer
+import com.example.benakmoume_yahi.navigation.AppRoute
 import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
 import com.example.benakmoume_yahi.viewmodel.RecipeDetailViewModel
 import com.example.benakmoume_yahi.viewmodel.RecipeUiState
 import com.example.benakmoume_yahi.utils.hasInternet
 import com.example.benakmoume_yahi.utils.ingredients
 import com.example.benakmoume_yahi.utils.reviews
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 val stringInstruction = "For the Big Mac sauce, combine all the ingredients in a bowl, season with salt and chill until ready to use."
 
@@ -79,10 +87,22 @@ fun RecipeDetailScreen(
         skipPartiallyExpanded = false,
     )
 
+    val authRepo = AuthRepository()
+    val currentUser by authRepo.currentUserFlow.collectAsState()
+
+    var isFavorite by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val comments by viewModel.comments.collectAsState()
+
     // Charger la recette au démarrage
     LaunchedEffect(mealId) {
         if (mealId != null) {
             viewModel.loadRecipeById(mealId)
+            isFavorite = viewModel.isRecipeFavorite(
+                currentUser?.uid ?:"",
+                idMeal =  mealId)//isRecipeFavorite("pSgIsaYVwWY32kq5HFuuTio06332", "52772")
         } else {
             //viewModel.loadRandomRecipe()
             viewModel.loadRecipeById("53085")
@@ -121,6 +141,8 @@ fun RecipeDetailScreen(
         else -> listOf(stringInstruction, stringInstruction, stringInstruction)
     }
 
+
+
     Column(modifier = Modifier.fillMaxSize().padding(0.dp, 0.dp, 0.dp, 0.dp))
     {
         Column(modifier = Modifier.fillMaxWidth().weight(0.25f))
@@ -137,7 +159,7 @@ fun RecipeDetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
-                                .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+                                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                                 .drawWithContent {
                                     drawContent()
                                     drawRect(
@@ -179,7 +201,7 @@ fun RecipeDetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
-                                .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen }
+                                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                                 .drawWithContent {
                                     drawContent()
                                     drawRect(
@@ -256,15 +278,38 @@ fun RecipeDetailScreen(
                         Spacer(modifier = Modifier.width(10.dp))
                         Text("14,991 reviews", color = Color.Gray)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically)
-                    {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            coroutineScope.launch {
+                                if (isFavorite) {
+                                    val result = viewModel.removeRecipeFromFavorites(currentUser?.uid ?: "", recipeId)
+                                    if (result) {
+                                        isFavorite = false           // <--- Mise à jour de l'état
+                                        Toast.makeText(context, "Favori retiré", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Erreur lors du retrait", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    val result = viewModel.addRecipeToFavorites(currentUser?.uid ?: "", recipeId)
+                                    if (result) {
+                                        isFavorite = true            // <--- Mise à jour de l'état
+                                        Toast.makeText(context, "Ajouté aux favoris", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Erreur lors de l'ajout", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+
                         Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = "Rate Receipt",
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Ajouter aux favoris",
                             tint = Color(0xFFFF6E41),
                             modifier = Modifier.size(18.dp),
+                        )
 
-                            )
                         Text(" Favori", color = Color.Gray)
                     }
 
@@ -395,8 +440,22 @@ fun RecipeDetailScreen(
                         }
                     }
                     2 -> {
-                        reviews.forEach {
-                            ReviewCard(it)
+                        if (comments.isEmpty()) {
+                            Text("Aucun commentaire disponible", modifier = Modifier.padding(16.dp))
+                        } else {
+                            Text(text = comments.size.toString())
+
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            ) {
+                                items(comments.size) { index ->
+                                    val reviw = comments.get(index)
+                                    ReviewCard(reviw)
+                                    //Text(reviw.comment_text)
+                                }
+                            }
+
                         }
                     }
                 }

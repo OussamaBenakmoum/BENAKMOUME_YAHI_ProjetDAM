@@ -34,16 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.benakmoume_yahi.models.RecipeCommentWithUser
 import com.example.benakmoume_yahi.models.Review
 
 @Composable
-fun ReviewCard(review: Review)
+fun ReviewCard(review: RecipeCommentWithUser)
 {
 
     Row(modifier = Modifier.padding(vertical = 10.dp))
     {
         AsyncImage(
-            model = review.userImageUrl,
+            model = review.user_photo ?: "https://randomuser.me/api/portraits/women/68.jpg",
             contentDescription = "User profile picture",
             modifier = Modifier
                 .size(48.dp)
@@ -57,9 +58,9 @@ fun ReviewCard(review: Review)
             {
                 Column ()//will hold username and date
                 {
-                    Text(text = review.userName, color = Color.Black, fontWeight = FontWeight.SemiBold, lineHeight = 12.sp )
+                    Text(text = review.user_firstname +" "+ review.user_lastname ?: "", color = Color.Black, fontWeight = FontWeight.SemiBold, lineHeight = 12.sp )
                     Spacer(modifier = Modifier.height(0.dp))
-                    Text(text = review.reviewAt, color = Color.Gray, fontWeight = FontWeight.Light, fontSize = 12.sp, lineHeight = 12.sp )
+                    //Text(text = review.reviewAt, color = Color.Gray, fontWeight = FontWeight.Light, fontSize = 12.sp, lineHeight = 12.sp )
                 }
                 Row (modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) // will hold rating stars
                 {
@@ -99,7 +100,7 @@ fun ReviewCard(review: Review)
                         )
                 }
             }
-            Text(text = review.textReview)
+            Text(text = review.comment_text ?: "")
         }
     }
 
@@ -114,5 +115,5 @@ val reviewExample =     Review( 1, "https://t4.ftcdn.net/jpg/03/83/25/83/360_F_3
 fun ReviewCardPreview()
 {
 
-    ReviewCard(reviewExample)
+    //ReviewCard(reviewExample)
 }

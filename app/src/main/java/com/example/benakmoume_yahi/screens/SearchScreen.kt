@@ -228,9 +228,9 @@ fun SearchScreen(
                                     RecipeCard(
                                         recipe = recipe,
                                         onClick = {
-                                            //navController.navigate(
-                                                //AppRoute.RecipeDetail.createRoute(recipe.id_meal)
-                                            //)
+                                            navController.navigate(
+                                                AppRoute.RecipeDetail.createRoute(recipe.id_meal)
+                                            )
                                         }
                                     )
                                 }

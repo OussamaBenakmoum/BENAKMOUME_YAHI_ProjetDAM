@@ -20,12 +20,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,8 +74,8 @@ fun LandingScreenPreview()
 @Composable
 fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryViewModel = viewModel(), viewModelAiRecipe: SearchViewModel = viewModel())
 {
-    //val authRepo = AuthRepository.getInstance()
-    //val currentUser by authRepo.currentUserFlow.collectAsState()
+    val authRepo = AuthRepository()
+    val currentUser by authRepo.currentUserFlow.collectAsState()
     val uiState = viewModel.uiState
 
     val uiStateAiRecipe by viewModelAiRecipe.uiState.collectAsState()
@@ -85,7 +90,7 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
             Row (modifier = Modifier.fillMaxWidth())
             {
                 Text("Bonjour ", fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
-                Text("Oussama", fontSize = 26.sp, fontWeight = FontWeight.SemiBold)//Text(currentUser?.uid ?: "Non connecté")
+                Text(currentUser?.displayName ?: "Non connecté", fontSize = 26.sp, fontWeight = FontWeight.SemiBold)//Text(currentUser?.uid ?: "Non connecté")
             }
 
             Card(//#7A5AF8
@@ -192,7 +197,6 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
                 border = BorderStroke(0.5.dp, Color(0xFF7A5AF8))
             )
             {
-                Log.d("benakout", uiStateAiRecipe.restaurants.size.toString())
                 when {
                     uiStateAiRecipe.isLoading -> {
                         Box(
@@ -213,16 +217,40 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
 
                     else -> {
                         val displayedRestaurants = uiStateAiRecipe.restaurants
+                        Box (modifier = Modifier.fillMaxSize())
+                        {
 
-                        OSMRestaurantMap(
-                            latitude = 45.719638,
-                            longitude = 4.918317,
-                            restaurantName = "Vous",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clipToBounds(),
-                            displayedRestaurants
-                        )
+                            OSMRestaurantMap(
+                                latitude = 45.719638,
+                                longitude = 4.918317,
+                                restaurantName = "Vous",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clipToBounds(),
+                                displayedRestaurants
+                            )
+                            Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically)
+                            {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDownward,
+                                    contentDescription = "Rate Receipt",
+                                    tint = Color.Black,
+                                    modifier = Modifier.padding(10.dp,0.dp,5.dp, 0.dp).size(26.dp),
+                                )
+                                Text(text = "Autour de toi", style = TextStyle(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(
+                                            Color.Black,
+                                            Color(0xFF7A5AF8)
+                                        )
+                                    ),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                )
+                            }
+
+                        }
 
 
                     }
