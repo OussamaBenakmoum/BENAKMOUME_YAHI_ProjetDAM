@@ -5,6 +5,7 @@ import com.example.benakmoume_yahi.models.CategoriesResponse
 import com.example.benakmoume_yahi.models.DeleteFavoriteResponse
 import com.example.benakmoume_yahi.models.FavoriteCheckResponse
 import com.example.benakmoume_yahi.models.Recipe
+import com.example.benakmoume_yahi.models.RecipeCommentCreate
 import com.example.benakmoume_yahi.models.RecipeCommentWithUser
 import com.example.benakmoume_yahi.models.Restaurant
 import okhttp3.RequestBody
@@ -81,5 +82,21 @@ interface RecipeApiService {
     suspend fun getCommentsByRecipe(
         @Path("id_meal") idMeal: String
     ): List<RecipeCommentWithUser>
+
+    @POST("/users/{firebase_uid}/comments")
+    suspend fun createComment(
+        @Path("firebase_uid") firebaseUid: String,
+        @Body comment: RecipeCommentCreate
+    ): RecipeCommentWithUser
+
+
+    @DELETE("/users/{firebase_uid}/comments/{comment_id}")
+    suspend fun deleteComment(
+        @Path("firebase_uid") firebaseUid: String,
+        @Path("comment_id") commentId: Int
+    ): Response<Void>
+
+
+
 
 }

@@ -41,6 +41,7 @@ import com.example.benakmoume_yahi.components.OrderBottomSheet
 import com.example.benakmoume_yahi.components.RecipeCard
 import com.example.benakmoume_yahi.components.ReviewCard
 import com.example.benakmoume_yahi.components.YouTubePlayer
+import com.example.benakmoume_yahi.models.RecipeCommentCreate
 import com.example.benakmoume_yahi.navigation.AppRoute
 import com.example.benakmoume_yahi.ui.theme.BENAKMOUME_YAHITheme
 import com.example.benakmoume_yahi.viewmodel.RecipeDetailViewModel
@@ -94,7 +95,7 @@ fun RecipeDetailScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val comments by viewModel.comments.collectAsState()
+    val comments by viewModel.comments.collectAsState(initial = emptyList())
 
     // Charger la recette au démarrage
     LaunchedEffect(mealId) {
@@ -276,7 +277,7 @@ fun RecipeDetailScreen(
 
                             )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text("14,991 reviews", color = Color.Gray)
+                        Text(comments.size.toString() + " review(s)", color = Color.Gray)
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -285,7 +286,7 @@ fun RecipeDetailScreen(
                                 if (isFavorite) {
                                     val result = viewModel.removeRecipeFromFavorites(currentUser?.uid ?: "", recipeId)
                                     if (result) {
-                                        isFavorite = false           // <--- Mise à jour de l'état
+                                        isFavorite = false
                                         Toast.makeText(context, "Favori retiré", Toast.LENGTH_SHORT).show()
                                     } else {
                                         Toast.makeText(context, "Erreur lors du retrait", Toast.LENGTH_SHORT).show()
@@ -293,7 +294,7 @@ fun RecipeDetailScreen(
                                 } else {
                                     val result = viewModel.addRecipeToFavorites(currentUser?.uid ?: "", recipeId)
                                     if (result) {
-                                        isFavorite = true            // <--- Mise à jour de l'état
+                                        isFavorite = true
                                         Toast.makeText(context, "Ajouté aux favoris", Toast.LENGTH_SHORT).show()
                                     } else {
                                         Toast.makeText(context, "Erreur lors de l'ajout", Toast.LENGTH_SHORT).show()
@@ -440,22 +441,43 @@ fun RecipeDetailScreen(
                         }
                     }
                     2 -> {
-                        if (comments.isEmpty()) {
+                        if (comments.isEmpty())
+                        {
                             Text("Aucun commentaire disponible", modifier = Modifier.padding(16.dp))
-                        } else {
-                            Text(text = comments.size.toString())
+                        }
+                        else
+                        {
+                            comments.forEach { element ->
 
-                            LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                modifier = Modifier.padding(vertical = 8.dp)
-                            ) {
-                                items(comments.size) { index ->
-                                    val reviw = comments.get(index)
-                                    ReviewCard(reviw)
-                                    //Text(reviw.comment_text)
-                                }
+                                ReviewCard(element, currentUser?.uid == element.firebase_uid,
+                                    onDelete = { commentId ->
+                                        coroutineScope.launch {
+                                            val success = viewModel.deleteComment(
+                                                element.firebase_uid,
+                                                commentId
+                                            )
+                                            if (success) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Commentaire supprimé",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                // Recharge la liste des commentaires ou supprime localement
+                                                viewModel.loadComments(element.id_meal)
+                                            } else {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Erreur suppression",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    }
+                                    )
+
+
+
                             }
-
                         }
                     }
                 }
@@ -518,7 +540,31 @@ fun RecipeDetailScreen(
                     Spacer(Modifier.height(24.dp))
                     // Give Review Button
                     Button(
-                        onClick = { /* Submit action */ },
+                        onClick = {
+                            coroutineScope.launch {
+                                if (currentUser != null && mealId != null) {
+                                    val comment = RecipeCommentCreate(
+                                        id_meal = mealId,
+                                        comment_text = reviewText,
+                                        rating = selectedRating
+                                    )
+                                    val success = viewModel.postComment(currentUser?.uid ?: "", comment)
+                                    if (success) {
+                                        Toast.makeText(context, "Commentaire envoyé", Toast.LENGTH_SHORT).show()
+                                        reviewText = ""           // reset textarea
+                                        selectedRating = 2        // reset étoiles si voulu
+                                        showOrderBottomSheet = false
+                                        viewModel.loadComments(comment.id_meal)
+
+                                    } else {
+                                        Toast.makeText(context, "Erreur lors de l'envoi", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(context, "Utilisateur ou recette non trouvée", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp)

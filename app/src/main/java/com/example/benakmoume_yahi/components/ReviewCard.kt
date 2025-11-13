@@ -1,6 +1,7 @@
 package com.example.benakmoume_yahi.components
 
 import android.R
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,12 +39,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.benakmoume_yahi.models.RecipeCommentWithUser
 import com.example.benakmoume_yahi.models.Review
+import com.example.benakmoume_yahi.utils.formatTimeDifference
 
 @Composable
-fun ReviewCard(review: RecipeCommentWithUser)
+fun ReviewCard(review: RecipeCommentWithUser, myComment:Boolean = false, onDelete: (commentId: Int) -> Unit = {})
 {
+    val context = LocalContext.current
 
-    Row(modifier = Modifier.padding(vertical = 10.dp))
+
+    Row(modifier = Modifier.padding(vertical = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.SpaceBetween)
     {
         AsyncImage(
             model = review.user_photo ?: "https://randomuser.me/api/portraits/women/68.jpg",
@@ -52,56 +58,64 @@ fun ReviewCard(review: RecipeCommentWithUser)
                 .border(0.dp, Color.White, CircleShape),
             contentScale = ContentScale.Crop
         )
+
         Column (modifier = Modifier.padding(horizontal = 5.dp))
         {
-            Row(modifier = Modifier.fillMaxWidth())
+            Row(/*modifier = Modifier.fillMaxWidth(),*/ horizontalArrangement = Arrangement.SpaceEvenly)
             {
-                Column ()//will hold username and date
+                Column (/*modifier = Modifier.fillMaxWidth()*/)//will hold username and date
                 {
                     Text(text = review.user_firstname +" "+ review.user_lastname ?: "", color = Color.Black, fontWeight = FontWeight.SemiBold, lineHeight = 12.sp )
                     Spacer(modifier = Modifier.height(0.dp))
-                    //Text(text = review.reviewAt, color = Color.Gray, fontWeight = FontWeight.Light, fontSize = 12.sp, lineHeight = 12.sp )
+                    Text(text = formatTimeDifference( review.created_at ?: ""), color = Color.Gray, fontWeight = FontWeight.Light, fontSize = 12.sp, lineHeight = 12.sp )
                 }
-                Row (modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) // will hold rating stars
+                Spacer(modifier = Modifier.width(10.dp))
+                Row (/*modifier = Modifier.fillMaxWidth(),*/verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) // will hold rating stars
                 {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Rate Receipt",
-                        tint = Color(0xFFFF6E41),
-                        modifier = Modifier.size(15.dp),
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Rate Receipt",
-                        tint = Color(0xFFFF6E41),
-                        modifier = Modifier.size(15.dp),
+                    val maxStars = 5
+                    val rating = review.rating ?: 0
 
+                    repeat(rating.coerceAtMost(maxStars)) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star (Note)",
+                            tint = Color(0xFFFF6E41),
+                            modifier = Modifier.size(15.dp)
                         )
-                    Icon(
-                        imageVector =Icons.Default.Star,
-                        contentDescription = "Rate Receipt",
-                        tint = Color(0xFFFF6E41),
-                        modifier = Modifier.size(15.dp),
-
+                    }
+                    repeat(maxStars - rating.coerceAtLeast(0).coerceAtMost(maxStars)) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Star (Non noté)",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(15.dp)
                         )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Rate Receipt",
-                        tint = Color(0xFFFF6E41),
-                        modifier = Modifier.size(15.dp),
-
-                        )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Rate Receipt",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(15.dp),
-
-                        )
+                    }
                 }
             }
-            Text(text = review.comment_text ?: "")
+            Text(text = review.comment_text)
+
         }
+        if (myComment)
+        {
+            Icon(
+                imageVector = Icons.Default.DeleteOutline,
+                contentDescription = "Supprimer commentaire",
+                tint = Color.Red,
+                modifier = Modifier.size(32.dp).clickable
+                {
+                    onDelete(review.id)
+                    Toast.makeText(context, "Commentaire supprimé", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+        else
+        {
+            Spacer(modifier = Modifier.width(32.dp))
+
+        }
+
+
     }
 
 

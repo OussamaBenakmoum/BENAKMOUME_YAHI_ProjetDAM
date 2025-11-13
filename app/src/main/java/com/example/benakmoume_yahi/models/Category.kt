@@ -21,6 +21,7 @@ data class DeleteFavoriteResponse(
 data class RecipeCommentWithUser(
     val id: Int,
     val user_id: Int,
+    val firebase_uid: String,
     val id_meal: String,
     val comment_text: String,
     val rating: Int?, // nullable si optionnel
@@ -29,4 +30,10 @@ data class RecipeCommentWithUser(
     val user_firstname: String?,
     val user_lastname: String?,
     val user_photo: String?
+)
+
+data class RecipeCommentCreate(
+    val id_meal: String,
+    val comment_text: String,
+    val rating: Int? = null
 )

@@ -3,6 +3,7 @@ package com.example.benakmoume_yahi.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.benakmoume_yahi.models.Recipe
+import com.example.benakmoume_yahi.models.RecipeCommentCreate
 import com.example.benakmoume_yahi.models.RecipeCommentWithUser
 import com.example.benakmoume_yahi.remote.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -119,5 +120,25 @@ class RecipeDetailViewModel : ViewModel() {
             _comments.value = fetchComments(idMeal)
         }
     }
+
+    suspend fun postComment(firebaseUid: String, comment: RecipeCommentCreate): Boolean {
+        return try {
+            val response = RetrofitInstance.api.createComment(firebaseUid, comment)
+            response != null // succès si on reçoit une réponse valide
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun deleteComment(firebaseUid: String, commentId: Int): Boolean {
+        return try {
+            val response = RetrofitInstance.api.deleteComment(firebaseUid, commentId)
+            // si pas d'exception, succès
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 
 }

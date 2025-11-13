@@ -47,12 +47,6 @@ fun OrderBottomSheet(modifier: Modifier = Modifier) {
             )
         ) {
             Row (Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically){
-                /*Icon(
-                    imageVector = Icons.Default.ShoppingCart,
-                    contentDescription = "Rate Receipt",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp),
-                )*/
                 Text("Commander maintenant !")
 
             }
