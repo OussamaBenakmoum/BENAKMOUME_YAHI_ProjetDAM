@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "196707050986-nlc41935ekebjg8vhdbpvimmi08p8g9h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.benakmoume_yahi",
+            "certificate_hash": "fe1e435eb506dbd6f50b268bc9d91aa1d5473f13"
+          }
+        },
+        {
           "client_id": "196707050986-g9fuhim0vddvmhv6hrhbbs2nv6tsap41.apps.googleusercontent.com",
           "client_type": 3
         }
