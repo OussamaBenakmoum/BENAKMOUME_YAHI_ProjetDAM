@@ -277,7 +277,7 @@ fun RecipeDetailScreen(
 
                             )
                         Spacer(modifier = Modifier.width(10.dp))
-                        Text(comments.size.toString() + " review(s)", color = Color.Gray)
+                        Text(comments.size.toString() + " Avis", color = Color.Gray)
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -323,23 +323,23 @@ fun RecipeDetailScreen(
             {
                 Column()
                 {
-                    Text("Prep. Time", fontSize = 13.sp, color = Color.Gray)
+                    Text("Temps Prep", fontSize = 13.sp, color = Color.Gray)
                     Text("45 min", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
                 Column()
                 {
-                    Text("Cook Time", fontSize = 13.sp, color = Color.Gray)
+                    Text("Temps Cuison", fontSize = 13.sp, color = Color.Gray)
                     Text("10 min", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
                 Column()
                 {
-                    Text("Cooked", fontSize = 13.sp, color = Color.Gray)
+                    Text("Cuite", fontSize = 13.sp, color = Color.Gray)
                     Text("9.5K", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
                 Column()
                 {
-                    Text("Level", fontSize = 13.sp, color = Color.Gray)
-                    Text("Easy", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text("Niveau", fontSize = 13.sp, color = Color.Gray)
+                    Text("Facile", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
             }
         }
@@ -498,7 +498,7 @@ fun RecipeDetailScreen(
 
                     // Title
                     Text(
-                        text = "Do you like this recipe video?",
+                        text = "Aimez vous cette vidéo de recette?",
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .align(Alignment.CenterHorizontally),
@@ -532,7 +532,7 @@ fun RecipeDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp),
-                        placeholder = { Text("Type your review here...") },
+                        placeholder = { Text("Saisissez votre avis ici...") },
                         shape = RoundedCornerShape(16.dp),
                         minLines = 3,
                         maxLines = 5
@@ -574,7 +574,7 @@ fun RecipeDetailScreen(
                             containerColor = Color(0xFFFF6E41)
                         )
                     ) {
-                        Text("Give Review")
+                        Text("Donner l'avis")
                     }
                     // Maybe Later
                     TextButton(
@@ -582,7 +582,7 @@ fun RecipeDetailScreen(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Maybe Later", color = Color.Gray)
+                        Text("Plus Tard", color = Color.Gray)
                     }
                     Spacer(Modifier.height(16.dp))
                 }

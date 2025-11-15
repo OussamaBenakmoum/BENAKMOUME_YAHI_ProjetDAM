@@ -6,12 +6,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+//import androidx.compose.material3.ExperimentalLayoutApi
+//import androidx.compose.material3.FlowRow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.example.benakmoume_yahi.navigation.AppRoute
 import com.example.benakmoume_yahi.viewmodel.ChooseCategoryViewModel
@@ -20,11 +24,13 @@ import com.example.benakmoume_yahi.viewmodel.ChooseCategoryViewModel
 @Composable
 fun ChooseCategoryScreen(
     navController: NavHostController,
+    from: String,
     viewModel: ChooseCategoryViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
     val mainColor = Color(0xFFFF6E41)
     val uiState = viewModel.uiState
+    val isFromProfile = from == AppRoute.ChooseCategory.FROM_PROFILE
 
     Scaffold(
         topBar = {
@@ -46,20 +52,25 @@ fun ChooseCategoryScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(8.dp))
-            Text("3 sur 5", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            Text(
+                text = if (isFromProfile) "Préférences" else "3 sur 5",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
 
             Spacer(Modifier.height(40.dp))
 
             when {
                 uiState.isLoading -> {
                     Box(
-                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = mainColor)
                     }
                 }
-
                 uiState.error != null -> {
                     Text(
                         text = "Erreur: ${uiState.error}",
@@ -67,7 +78,6 @@ fun ChooseCategoryScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-
                 else -> {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -99,21 +109,41 @@ fun ChooseCategoryScreen(
 
             Spacer(Modifier.height(36.dp))
 
-            Button(
-                onClick = {
-                    // TODO: persister uiState.selectedCategories si nécessaire
-                    navController.navigate(AppRoute.Landing.route) {
-                        launchSingleTop = true
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(40.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = mainColor),
-                enabled = !uiState.isLoading
-            ) {
-                Text("Continuer", color = Color.White, style = MaterialTheme.typography.titleMedium)
+            if (!isFromProfile) {
+                // Onboarding → Continuer vers Landing
+                Button(
+                    onClick = {
+                        // TODO: persister uiState.selectedCategories si nécessaire
+                        navController.navigate(AppRoute.Landing.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = mainColor),
+                    enabled = !uiState.isLoading
+                ) {
+                    Text("Continuer", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                }
+            } else {
+                // Profil → Terminer (retour)
+                Button(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = mainColor),
+                    enabled = !uiState.isLoading
+                ) {
+                    Text("Terminer", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                }
             }
 
             Spacer(Modifier.height(16.dp))

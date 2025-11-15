@@ -1,39 +1,15 @@
 package com.example.benakmoume_yahi.screens
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddLocation
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,8 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,169 +31,204 @@ import com.example.benakmoume_yahi.Auth.AuthRepository
 import com.example.benakmoume_yahi.R
 import com.example.benakmoume_yahi.components.OSMRestaurantMap
 import com.example.benakmoume_yahi.components.RecipeCard
-import com.example.benakmoume_yahi.components.RestaurantCard
 import com.example.benakmoume_yahi.navigation.AppRoute
 import com.example.benakmoume_yahi.viewmodel.ChooseCategoryViewModel
 import com.example.benakmoume_yahi.viewmodel.SearchViewModel
 
-
 @Preview(showBackground = true)
 @Composable
-fun LandingScreenPreview()
-{
+fun LandingScreenPreview() {
     val navController = rememberNavController()
     LandingScreen(navController = navController)
 }
 
 @Composable
-fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryViewModel = viewModel(), viewModelAiRecipe: SearchViewModel = viewModel())
-{
+fun LandingScreen(
+    navController: NavHostController,
+    viewModel: ChooseCategoryViewModel = viewModel(),
+    viewModelAiRecipe: SearchViewModel = viewModel()
+) {
+    val mainColor = Color(0xFFFF6E41)
+
+    // Utilisateur connecté
     val authRepo = AuthRepository()
     val currentUser by authRepo.currentUserFlow.collectAsState()
+
+    // State catégories
     val uiState = viewModel.uiState
 
+    // State recettes/restaurants
     val uiStateAiRecipe by viewModelAiRecipe.uiState.collectAsState()
 
-
+    // Démo: recherche simple
     viewModelAiRecipe.onSearchQueryChanged("e")
 
-    Column(modifier = Modifier.fillMaxSize().padding(10.dp))
-    {
-        Column (modifier = Modifier.fillMaxSize())
-        {
-            Row (modifier = Modifier.fillMaxWidth())
-            {
+    Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text("Bonjour ", fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
-                Text(currentUser?.displayName ?: "Non connecté", fontSize = 26.sp, fontWeight = FontWeight.SemiBold)//Text(currentUser?.uid ?: "Non connecté")
+                Text(currentUser?.displayName ?: "Invité", fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
             }
+            Spacer(Modifier.height(12.dp))
 
-            Card(//#7A5AF8
+            // Recommandées pour toi
+            Card(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
-                border = BorderStroke(0.5.dp, Color(0xFF7A5AF8))
-            )
-            {
-                Row (modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp))
-                {
-                    Text(text = "Recommandées pour toi", style = TextStyle(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color.Black,
-                                Color(0xFF7A5AF8)
-                            )
-                        ),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                border = BorderStroke(0.5.dp, color = mainColor)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Recommandées pour toi",
+                        style = TextStyle(
+                            brush = Brush.linearGradient(colors = listOf(Color.Black, Color(0xFF7A5AF8))),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     )
-                    )
-
+                    Spacer(Modifier.width(8.dp))
                     Image(
                         painter = painterResource(R.drawable.aistars),
-                        contentDescription = "test",
+                        contentDescription = "AI",
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
+                // Puces catégories
                 when {
                     uiState.isLoading -> {
                         Box(
-                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            modifier = Modifier.fillMaxWidth().height(120.dp),
                             contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = Color.Black)
-                        }
+                        ) { CircularProgressIndicator(color = Color.Black) }
                     }
-
                     uiState.error != null -> {
                         Text(
                             text = "Erreur: ${uiState.error}",
                             color = Color.Red,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
-
                     else -> {
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.padding(vertical = 6.dp).padding(horizontal = 10.dp)
-                        )
-                        {
+                        ) {
                             items(uiState.categories.size) { index ->
                                 Surface(
-                                    //onClick = { Log.d("test","ddd") },
                                     shape = CircleShape,
-                                    color = Color(0xFFF1F2F4),
-
+                                    color = Color(0xFFFFE7DE),
                                     tonalElevation = 0.dp,
                                     shadowElevation = 0.dp,
-                                    border = BorderStroke(1.dp, Color(0xFFA90B3D))
+                                    border = null
                                 ) {
                                     Text(
                                         text = uiState.categories[index],
-                                        color = Color(0xFFA90B3D),
+                                        color = mainColor,
                                         style = MaterialTheme.typography.titleSmall,
-                                        modifier = Modifier.padding(
-                                            horizontal = 18.dp,
-                                            vertical = 12.dp
-                                        )
+                                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
                                     )
                                 }
                             }
                         }
-
-
                     }
                 }
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 10.dp)
-                ) {
-                    items(uiStateAiRecipe.recipes.size) { index ->
-                        val recipe = uiStateAiRecipe.recipes[index]
-                        RecipeCard(
-                            recipe = recipe,
-                            true,
-                            onClick = {
-                                navController.navigate(
-                                    AppRoute.RecipeDetail.createRoute(recipe.id_meal)
+                // Recettes AI
+                when {
+                    uiStateAiRecipe.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(160.dp),
+                            contentAlignment = Alignment.Center
+                        ) { CircularProgressIndicator(color = Color.Black) }
+                    }
+                    uiStateAiRecipe.error != null -> {
+                        Text(
+                            text = "Erreur: ${uiStateAiRecipe.error}",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
+                    else -> {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 10.dp)
+                        ) {
+                            items(uiStateAiRecipe.recipes.size) { index ->
+                                val recipe = uiStateAiRecipe.recipes[index]
+                                RecipeCard(
+                                    recipe = recipe,
+                                    true,
+                                    onClick = {
+                                        navController.navigate(
+                                            AppRoute.RecipeDetail.createRoute(recipe.id_meal)
+                                        )
+                                    }
                                 )
                             }
-                        )
+                        }
                     }
                 }
             }
+
+
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = "Restaurants autour de toi ",
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                //Spacer(Modifier.weight(1f))
+
+                Icon(
+                    imageVector = Icons.Outlined.LocationOn,
+                    contentDescription = "Carte",
+                    tint = mainColor,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            // Carte OSM (sans bandeau)
             Card(
                 modifier = Modifier.fillMaxSize().padding(vertical = 8.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
-                border = BorderStroke(0.5.dp, Color(0xFF7A5AF8))
-            )
-            {
+                border = BorderStroke(0.5.dp, color = mainColor)
+            ) {
                 when {
                     uiStateAiRecipe.isLoading -> {
                         Box(
                             modifier = Modifier.fillMaxWidth().height(200.dp),
                             contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = Color.Black)
-                        }
+                        ) { CircularProgressIndicator(color = Color.Black) }
                     }
-
                     uiStateAiRecipe.error != null -> {
                         Text(
-                            text = "Erreur: ${uiState.error}",
+                            text = "Erreur: ${uiStateAiRecipe.error}",
                             color = Color.Red,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
-
                     else -> {
                         val displayedRestaurants = uiStateAiRecipe.restaurants
-                        Box (modifier = Modifier.fillMaxSize())
-                        {
-
+                        Box(modifier = Modifier.fillMaxSize()) {
                             OSMRestaurantMap(
                                 latitude = 45.719638,
                                 longitude = 4.918317,
@@ -229,41 +238,10 @@ fun LandingScreen(navController: NavHostController, viewModel: ChooseCategoryVie
                                     .clipToBounds(),
                                 displayedRestaurants
                             )
-                            Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically)
-                            {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDownward,
-                                    contentDescription = "Rate Receipt",
-                                    tint = Color.Black,
-                                    modifier = Modifier.padding(10.dp,0.dp,5.dp, 0.dp).size(26.dp),
-                                )
-                                Text(text = "Autour de toi", style = TextStyle(
-                                    brush = Brush.linearGradient(
-                                        colors = listOf(
-                                            Color.Black,
-                                            Color(0xFF7A5AF8)
-                                        )
-                                    ),
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                )
-                            }
-
                         }
-
-
                     }
                 }
-
             }
-
         }
-
-
-        //Button(onClick = {navController.navigate(AppRoute.RestaurantDetail.Companion.createRoute(1))}) { }
     }
-
-
 }
-

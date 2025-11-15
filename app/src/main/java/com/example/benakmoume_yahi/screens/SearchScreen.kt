@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -50,10 +51,11 @@ fun SearchScreen(
     val uiState by viewModel.uiState.collectAsState()
     var isFocused by remember { mutableStateOf(false) }
     var showAllRestaurants by remember { mutableStateOf(false) }
+    val mainColor = Color(0xFFFF6E41)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
-            text = "Search",
+            text = "Recherche",
             color = Color.Black,
             fontSize = 35.sp,
             fontWeight = FontWeight.Bold,
@@ -65,7 +67,7 @@ fun SearchScreen(
             onValueChange = { viewModel.onSearchQueryChanged(it) },
             shape = RoundedCornerShape(24.dp),
             placeholder = { Text("Trouver une recette/ un restaurant...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 23.dp, vertical = 10.dp)
@@ -74,12 +76,40 @@ fun SearchScreen(
                 },
             singleLine = true,
             colors = TextFieldDefaults.colors(
+                // Fond
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color(0xFFF4F2EE),
-                focusedIndicatorColor = Color.Black,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedLabelColor = Color.Red,
+                disabledContainerColor = Color(0xFFF4F2EE),
+
+                // Texte
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                disabledTextColor = Color.Gray,
+
+                // Placeholder
+                focusedPlaceholderColor = Color.Gray,
+                unfocusedPlaceholderColor = Color.Gray,
+
+                // Icônes
+                focusedLeadingIconColor = Color.Gray,
+                unfocusedLeadingIconColor = Color.Gray,
+
+                // Bordures (indicators)
+                focusedIndicatorColor = mainColor,         // bordure quand focus
+                unfocusedIndicatorColor = mainColor.copy(alpha = 0.6f), // bordure au repos
+                disabledIndicatorColor = mainColor.copy(alpha = 0.3f),
+
+                // Labels (si tu en utilises)
+                focusedLabelColor = mainColor,
                 unfocusedLabelColor = Color.LightGray,
+                disabledLabelColor = Color.LightGray.copy(alpha = 0.6f),
+
+                // Curseur
+                cursorColor = mainColor,
+                selectionColors = TextSelectionColors(
+                    handleColor = mainColor,
+                    backgroundColor = mainColor.copy(alpha = 0.25f)
+                )
             )
         )
 

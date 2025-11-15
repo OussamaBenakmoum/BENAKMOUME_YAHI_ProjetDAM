@@ -34,7 +34,7 @@ import com.example.benakmoume_yahi.R
 import com.example.benakmoume_yahi.models.Recipe
 
 val rec: Recipe = Recipe("ss","Ma recette bonne","Breakfast", "French", "url", "url", "tags", emptyList(),emptyList(),null)
-
+val mainColor = Color(0xFFFF6E41)
 @Composable
 @Preview
 fun RecipeCardPreview() {
@@ -45,7 +45,7 @@ fun RecipeCardPreview() {
 fun RecipeCard(recipe: com.example.benakmoume_yahi.models.Recipe, Airecommended: Boolean = false, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, if (Airecommended) Color(0xFF7A5AF8) else Color.Black),
+        border = BorderStroke(1.dp, if (Airecommended) mainColor else Color.Black),
         modifier = Modifier
             .size(width = 260.dp, height = 170.dp)
             .clickable { onClick() }
@@ -97,16 +97,16 @@ fun RecipeCard(recipe: com.example.benakmoume_yahi.models.Recipe, Airecommended:
                 {
                     Card (
                         shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, Color(0xff72E83F)))
+                        border = BorderStroke(1.dp, color = mainColor))
                     {
-                        Text(recipe.area ?: "", fontSize = 11.sp, color = Color(0xff72E83F), modifier = Modifier.padding(5.dp))
+                        Text(recipe.area ?: "", fontSize = 11.sp, color = mainColor, modifier = Modifier.padding(5.dp))
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Card (shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, Color(0xff72E83F)))
+                        border = BorderStroke(1.dp, color = mainColor))
                     {
 
-                        Text(recipe.category ?: "", fontSize = 11.sp, color = Color(0xff72E83F), modifier = Modifier.padding(5.dp))
+                        Text(recipe.category ?: "", fontSize = 11.sp, color = mainColor, modifier = Modifier.padding(5.dp))
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))

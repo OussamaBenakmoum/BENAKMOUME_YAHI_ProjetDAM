@@ -1,16 +1,15 @@
 package com.example.benakmoume_yahi.navigation
 
-import android.R
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -18,24 +17,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-
-// Screens
-import com.example.benakmoume_yahi.screens.CartScreen
-import com.example.benakmoume_yahi.screens.ChooseCategoryScreen
-import com.example.benakmoume_yahi.screens.ChooseCuisineScreen
-import com.example.benakmoume_yahi.screens.FavoriteScreen
-import com.example.benakmoume_yahi.screens.ForgotPasswordScreen
-import com.example.benakmoume_yahi.screens.GoogleSignUpScreen
-import com.example.benakmoume_yahi.screens.LandingScreen
-import com.example.benakmoume_yahi.screens.LoginOrSignUpScreen
-import com.example.benakmoume_yahi.screens.NewPasswordScreen
-import com.example.benakmoume_yahi.screens.ProfileScreen
-import com.example.benakmoume_yahi.screens.RecipeDetailScreen
-import com.example.benakmoume_yahi.screens.RestaurantDetailScreen
-import com.example.benakmoume_yahi.screens.SearchScreen
-import com.example.benakmoume_yahi.screens.SignInScreen
-import com.example.benakmoume_yahi.screens.SignUpScreen
-import com.example.benakmoume_yahi.screens.WelcomeScreen
+import com.example.benakmoume_yahi.screens.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.benakmoume_yahi.Auth.AuthViewModel
+import com.example.benakmoume_yahi.viewmodel.FavoritesViewModel
 
 @Composable
 fun AppNavGraph(
@@ -48,7 +33,7 @@ fun AppNavGraph(
         startDestination = if (isLoggedIn) AppRoute.Landing.route else AppRoute.Welcome.route,
         modifier = modifier.fillMaxSize()
     ) {
-        // Auth flow
+        // ========= Auth flow =========
         composable(AppRoute.Welcome.route) { WelcomeScreen(navController) }
         composable(AppRoute.LoginOrSignUp.route) { LoginOrSignUpScreen(navController) }
         composable(AppRoute.SignUp.route) { SignUpScreen(navController) }
@@ -77,11 +62,24 @@ fun AppNavGraph(
         // Google profile completion
         composable(AppRoute.GoogleSignUp.route) { GoogleSignUpScreen(nav = navController) }
 
-        // Optional preference screens accessible from auth
-        composable(AppRoute.ChooseCuisine.route) { ChooseCuisineScreen(navController) }
-        composable(AppRoute.ChooseCategory.route) { ChooseCategoryScreen(navController) }
+        // Preferences accessibles depuis auth (onboarding)
+        composable(AppRoute.ChooseCuisine.route) {
+            ChooseCuisineScreen(
+                navController = navController,
+                from = AppRoute.ChooseCategory.FROM_SIGNUP
+            )
+        }
+        composable(
+            route = AppRoute.ChooseCategory.ROUTE,
+            arguments = listOf(
+                navArgument("from") { type = NavType.StringType; defaultValue = AppRoute.ChooseCategory.FROM_SIGNUP }
+            )
+        ) { entry ->
+            val from = entry.arguments?.getString("from") ?: AppRoute.ChooseCategory.FROM_SIGNUP
+            ChooseCategoryScreen(navController = navController, from = from)
+        }
 
-        // Main graph with bottom bar
+        // Main graph avec bottom bar
         composable(AppRoute.Landing.route) {
             MainBottomNavGraph(rootNav = navController)
         }
@@ -94,20 +92,21 @@ fun MainBottomNavGraph(rootNav: NavHostController) {
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Decide tabs: keep Favorite; keep Cart commented if not in current design
     val bottomBarRoutes = listOf(
         AppRoute.Landing.route,
         AppRoute.Search.route,
         AppRoute.Favorite.route,
         AppRoute.Profile.route
-        // If you want Cart instead of Favorite, swap here and in BottomNavBar items
     )
 
     Scaffold(
         contentWindowInsets = WindowInsets(top = 0.dp),
         bottomBar = {
             if (currentRoute in bottomBarRoutes) {
-                BottomNavBar(bottomNavController)
+                BottomNavBar(
+                    navController = bottomNavController,
+                    mainColor = Color(0xFFFF6E41),
+                    barBackground = MaterialTheme.colorScheme.background,)
             }
         }
     ) { innerPadding ->
@@ -116,20 +115,39 @@ fun MainBottomNavGraph(rootNav: NavHostController) {
             startDestination = AppRoute.Landing.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // Home / Search
             composable(AppRoute.Landing.route) { LandingScreen(bottomNavController) }
             composable(AppRoute.Search.route) { SearchScreen(bottomNavController) }
-            composable(AppRoute.Favorite.route) { FavoriteScreen(bottomNavController) }
-            // composable(AppRoute.Cart.route) { CartScreen(bottomNavController) }
 
+            // Favoris réels (VM + Auth)
+            composable(AppRoute.Favorite.route) {
+                val favoritesVm: FavoritesViewModel = viewModel()
+                val authVm: AuthViewModel = viewModel()
+                FavoriteScreen(
+                    navController = bottomNavController,
+                    favoritesVm = favoritesVm,
+                    authVm = authVm
+                )
+            }
+
+            // Profil
             composable(AppRoute.Profile.route) {
                 ProfileScreen(
                     nav = bottomNavController,
-                    onFavoritesCuisines = { bottomNavController.navigate(AppRoute.ChooseCuisine.route) },
-                    onFavoritesCategories = { bottomNavController.navigate(AppRoute.ChooseCategory.route) },
+                    onFavoritesCuisines = {
+                        // Accès depuis Profil → ChooseCuisine en mode profile
+                        bottomNavController.navigate(AppRoute.ChooseCuisine.route)
+                    },
+                    onFavoritesCategories = {
+                        // Accès depuis Profil → ChooseCategory en mode profile
+                        bottomNavController.navigate(
+                            AppRoute.ChooseCategory.createRoute(AppRoute.ChooseCategory.FROM_PROFILE)
+                        )
+                    },
                     onSettings = { /* TODO */ },
                     onAbout = { /* TODO */ },
                     onSignOut = {
-                        // Use root navigator to clear the entire stack on sign out
+                        // Clear stack and go to SignIn
                         rootNav.navigate(AppRoute.SignIn.route) {
                             popUpTo(0) { inclusive = true }
                             launchSingleTop = true
@@ -138,11 +156,24 @@ fun MainBottomNavGraph(rootNav: NavHostController) {
                 )
             }
 
-            // Preference screens reachable from Profile
-            composable(AppRoute.ChooseCuisine.route) { ChooseCuisineScreen(bottomNavController) }
-            composable(AppRoute.ChooseCategory.route) { ChooseCategoryScreen(bottomNavController) }
+            // Preferences depuis profil
+            composable(AppRoute.ChooseCuisine.route) {
+                ChooseCuisineScreen(
+                    navController = bottomNavController,
+                    from = AppRoute.ChooseCategory.FROM_PROFILE
+                )
+            }
+            composable(
+                route = AppRoute.ChooseCategory.ROUTE,
+                arguments = listOf(
+                    navArgument("from") { type = NavType.StringType; defaultValue = AppRoute.ChooseCategory.FROM_PROFILE }
+                )
+            ) { entry ->
+                val from = entry.arguments?.getString("from") ?: AppRoute.ChooseCategory.FROM_PROFILE
+                ChooseCategoryScreen(navController = bottomNavController, from = from)
+            }
 
-            // Details (no bottom bar state change needed)
+            // Détails
             composable(
                 route = AppRoute.RecipeDetail.ROUTE,
                 arguments = listOf(navArgument("mealId") { type = NavType.StringType })
@@ -162,23 +193,34 @@ fun MainBottomNavGraph(rootNav: NavHostController) {
 }
 
 @Composable
-fun BottomNavBar(navController: NavHostController) {
+fun BottomNavBar(
+    navController: NavHostController,
+    mainColor: Color = Color(0xFFFF6E41),
+    barBackground: Color = MaterialTheme.colorScheme.background
+) {
     val items = listOf(
         AppRoute.Landing,
         AppRoute.Search,
         AppRoute.Favorite,
         AppRoute.Profile
-        // Or swap Favorite with AppRoute.Cart to match your design
     )
-    NavigationBar(windowInsets = WindowInsets(bottom = 0.dp, top = 0.dp)) {
+    val unselected = Color(0xFF1F1F1F) // noir doux
+    val indicator = barBackground // pas de pastille colorée
+
+    NavigationBar(
+        windowInsets = WindowInsets(bottom = 0.dp, top = 0.dp),
+        containerColor = barBackground,
+        tonalElevation = 0.dp
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
         items.forEach { screen ->
+            val selected = currentRoute == screen.route
             NavigationBarItem(
-                selected = currentRoute == screen.route,
+                selected = selected,
                 onClick = {
-                    if (currentRoute != screen.route) {
+                    if (!selected) {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -190,27 +232,25 @@ fun BottomNavBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
-                        imageVector = screen.icon ?: ImageVector.vectorResource(R.drawable.ic_menu_gallery),
-                        contentDescription = screen.title
+                        imageVector = screen.icon ?: Icons.Filled.Favorite,
+                        contentDescription = screen.title,
+                        tint = if (selected) mainColor else unselected
                     )
                 },
-                label = { Text(screen.title) },
+                label = {
+                    Text(
+                        text = screen.title,
+                        color = if (selected) mainColor else unselected
+                    )
+                },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    indicatorColor = MaterialTheme.colorScheme.surfaceVariant
+                    selectedIconColor = mainColor,
+                    selectedTextColor = mainColor,
+                    unselectedIconColor = unselected,
+                    unselectedTextColor = unselected,
+                    indicatorColor = indicator
                 )
             )
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun AppNavGraphPreview() {
-    val navController = rememberNavController()
-    AppNavGraph(navController = navController, isLoggedIn = true)
 }

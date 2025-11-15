@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -106,7 +105,7 @@ fun LoginOrSignUpScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Bouton Google
+                // Google button
                 Button(
                     onClick = {
                         scope.launch {
@@ -132,18 +131,19 @@ fun LoginOrSignUpScreen(
                                         .idToken
                                     val firebaseCred = GoogleAuthProvider.getCredential(idToken, null)
 
-                                    // 1) Auth Firebase
+                                    // 1) Firebase auth
                                     auth.signInWithCredential(firebaseCred).await()
 
-                                    // 2) Guard profil -> route (ne pas aller directement au Landing)
+                                    // 2) Route guard via Firestore profileCompleted
                                     vm.onGoogleAuthSuccess(
                                         navToComplete = {
                                             navController.navigate(AppRoute.GoogleSignUp.route) {
+                                                popUpTo(0) { inclusive = true }
                                                 launchSingleTop = true
                                             }
                                         },
                                         navNext = {
-                                            navController.navigate(AppRoute.ChooseCuisine.route) {
+                                            navController.navigate(AppRoute.Landing.route) {
                                                 popUpTo(0) { inclusive = true }
                                                 launchSingleTop = true
                                             }
@@ -184,7 +184,7 @@ fun LoginOrSignUpScreen(
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // Bouton Email -> navigation vers SignUp
+                // Email button -> SignUp
                 Button(
                     onClick = {
                         navController.navigate(AppRoute.SignUp.route) {

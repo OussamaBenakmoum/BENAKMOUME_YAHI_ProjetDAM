@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// États possibles de l'UI
 sealed class RecipeUiState {
     object Loading : RecipeUiState()
     data class Success(val recipe: Recipe) : RecipeUiState()
@@ -20,14 +19,12 @@ sealed class RecipeUiState {
 
 class RecipeDetailViewModel : ViewModel() {
 
-    // État observable par l'UI
     private val _uiState = MutableStateFlow<RecipeUiState>(RecipeUiState.Loading)
     val uiState: StateFlow<RecipeUiState> = _uiState.asStateFlow()
 
     private val _comments = MutableStateFlow<List<RecipeCommentWithUser>>(emptyList())
     val comments: StateFlow<List<RecipeCommentWithUser>> = _comments.asStateFlow()
 
-    // Charger une recette par ID
     fun loadRecipeById(mealId: String) {
         viewModelScope.launch {
             _uiState.value = RecipeUiState.Loading
@@ -36,15 +33,12 @@ class RecipeDetailViewModel : ViewModel() {
                 _uiState.value = RecipeUiState.Success(recipe)
                 loadComments(mealId)
             } catch (e: Exception) {
-                _uiState.value = RecipeUiState.Error(
-                    message = e.message ?: "Une erreur est survenue"
-                )
+                _uiState.value = RecipeUiState.Error(e.message ?: "Une erreur est survenue")
                 _comments.value = emptyList()
             }
         }
     }
 
-    // Charger une recette aléatoire
     fun loadRandomRecipe() {
         viewModelScope.launch {
             _uiState.value = RecipeUiState.Loading
@@ -52,37 +46,33 @@ class RecipeDetailViewModel : ViewModel() {
                 val recipe = RetrofitInstance.api.getRandomRecipe()
                 _uiState.value = RecipeUiState.Success(recipe)
             } catch (e: Exception) {
-                _uiState.value = RecipeUiState.Error(
-                    message = e.message ?: "Une erreur est survenue"
-                )
+                _uiState.value = RecipeUiState.Error(e.message ?: "Une erreur est survenue")
             }
         }
     }
 
-    // Charger des recettes par lettre
     fun loadRecipesByLetter(letter: String) {
         viewModelScope.launch {
             _uiState.value = RecipeUiState.Loading
             try {
                 val recipes = RetrofitInstance.api.getRecipesByLetter(letter)
-                if (recipes.body() != null && recipes.isSuccessful()) {
+                if (recipes.isSuccessful && !recipes.body().isNullOrEmpty()) {
                     _uiState.value = RecipeUiState.Success(recipes.body()!!.first())
                 } else {
                     _uiState.value = RecipeUiState.Error("Aucune recette trouvée")
                 }
             } catch (e: Exception) {
-                _uiState.value = RecipeUiState.Error(
-                    message = e.message ?: "Une erreur est survenue"
-                )
+                _uiState.value = RecipeUiState.Error(e.message ?: "Une erreur est survenue")
             }
         }
     }
 
+    // Favorites
     suspend fun addRecipeToFavorites(firebaseUid: String, recipeId: String): Boolean {
-        val jsonBody = mapOf("id_meal" to recipeId)
+        val body: Map<String, String> = mapOf("id_meal" to recipeId)
         return try {
-            val response = RetrofitInstance.api.addFavorite(firebaseUid, jsonBody)
-            response.isSuccessful
+            val resp = RetrofitInstance.api.addFavorite(firebaseUid, body)
+            resp.isSuccessful // 200 avec JSON {id, user_id, id_meal, created_at}
         } catch (e: Exception) {
             false
         }
@@ -90,23 +80,25 @@ class RecipeDetailViewModel : ViewModel() {
 
     suspend fun isRecipeFavorite(firebaseUid: String, idMeal: String): Boolean {
         return try {
-            val response = RetrofitInstance.api.checkFavoriteStatus(firebaseUid, idMeal)
-            response.is_favorite
-        } catch (e: Exception) {
-            false // En cas d’erreur, considérer que ce n’est pas un favori
-        }
-    }
-
-    suspend fun removeRecipeFromFavorites(firebaseUid: String, recipeId: String): Boolean {
-        return try {
-            val response = RetrofitInstance.api.removeFavorite(firebaseUid, recipeId)
-            response.message.contains("retirée")
+            val resp = RetrofitInstance.api.checkFavoriteStatus(firebaseUid, idMeal)
+            resp.is_favorite
         } catch (e: Exception) {
             false
         }
     }
 
+    suspend fun removeRecipeFromFavorites(firebaseUid: String, recipeId: String): Boolean {
+        return try {
+            val resp = RetrofitInstance.api.removeFavorite(firebaseUid, recipeId)
+            // Idéalement l’API renvoie {success:true}; sinon, parsage du message comme fallback
+            resp.message.contains("success", ignoreCase = true) ||
+                    resp.message.contains("retir", ignoreCase = true)
+        } catch (e: Exception) {
+            false
+        }
+    }
 
+    // Comments
     suspend fun fetchComments(idMeal: String): List<RecipeCommentWithUser> {
         return try {
             RetrofitInstance.api.getCommentsByRecipe(idMeal)
@@ -116,15 +108,13 @@ class RecipeDetailViewModel : ViewModel() {
     }
 
     fun loadComments(idMeal: String) {
-        viewModelScope.launch {
-            _comments.value = fetchComments(idMeal)
-        }
+        viewModelScope.launch { _comments.value = fetchComments(idMeal) }
     }
 
     suspend fun postComment(firebaseUid: String, comment: RecipeCommentCreate): Boolean {
         return try {
-            val response = RetrofitInstance.api.createComment(firebaseUid, comment)
-            response != null // succès si on reçoit une réponse valide
+            val resp = RetrofitInstance.api.createComment(firebaseUid, comment)
+            resp != null
         } catch (e: Exception) {
             false
         }
@@ -132,13 +122,10 @@ class RecipeDetailViewModel : ViewModel() {
 
     suspend fun deleteComment(firebaseUid: String, commentId: Int): Boolean {
         return try {
-            val response = RetrofitInstance.api.deleteComment(firebaseUid, commentId)
-            // si pas d'exception, succès
-            response.isSuccessful
+            val resp = RetrofitInstance.api.deleteComment(firebaseUid, commentId)
+            resp.isSuccessful
         } catch (e: Exception) {
             false
         }
     }
-
-
 }
