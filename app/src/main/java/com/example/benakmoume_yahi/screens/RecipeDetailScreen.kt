@@ -485,7 +485,7 @@ fun RecipeDetailScreen(
 
             }
 
-            OrderBottomSheet()
+            OrderBottomSheet(navController)
 
             if (showOrderBottomSheet) {
                 var selectedRating by remember { mutableStateOf(2) }

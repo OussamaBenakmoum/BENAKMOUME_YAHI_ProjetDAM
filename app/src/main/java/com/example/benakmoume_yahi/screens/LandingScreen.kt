@@ -126,7 +126,12 @@ fun LandingScreen(
                                     color = Color(0xFFFFE7DE),
                                     tonalElevation = 0.dp,
                                     shadowElevation = 0.dp,
-                                    border = null
+                                    border = null,
+                                    onClick =  {
+                                        navController.navigate(
+                                            AppRoute.Search.route + "/${uiState.categories[index]}"
+                                        )
+                                    }
                                 ) {
                                     Text(
                                         text = uiState.categories[index],
