@@ -3,11 +3,13 @@ package com.example.benakmoume_yahi.screens
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Approval
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -38,52 +41,45 @@ fun RestaurantDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-        // Charger le restaurant au démarrage
-        LaunchedEffect(restaurantId) {
-            viewModel.loadRestaurantById(restaurantId)
-        }
+    LaunchedEffect(restaurantId) {
+        viewModel.loadRestaurantById(restaurantId)
+    }
 
-        when (val state = uiState) {
-            is RestaurantUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            is RestaurantUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Erreur: ${state.message}",
-                            color = Color.Red,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.loadRestaurantById(restaurantId) }) {
-                            Text("Réessayer")
-                        }
+    when (val state = uiState) {
+        is RestaurantUiState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) { CircularProgressIndicator() }
+        }
+        is RestaurantUiState.Error -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Erreur: ${state.message}",
+                        color = Color.Red,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { viewModel.loadRestaurantById(restaurantId) }) {
+                        Text("Réessayer")
                     }
                 }
-                LaunchedEffect(Unit) {
-                    Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                }
             }
-
-            is RestaurantUiState.Success -> {
-                //Text(state.restaurant.imageRes ?:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/19/e3/1a/75/la-mere-jean.jpg?w=500&h=-1&s=1")
-                RestaurantDetailContent(
-                    restaurant = state.restaurant,
-                    navController = navController
-                )
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
             }
         }
-
-
+        is RestaurantUiState.Success -> {
+            RestaurantDetailContent(
+                restaurant = state.restaurant,
+                navController = navController
+            )
+        }
+    }
 }
 
 @Composable
@@ -94,33 +90,42 @@ fun RestaurantDetailContent(
     val context = LocalContext.current
     val tmplist = listOf(restaurant)
 
-
     Column(modifier = Modifier.fillMaxSize()) {
-        // Image section
+        // Image + bouton Retour superposé (Option 1)
         Column(modifier = Modifier.weight(0.25f).fillMaxSize()) {
-            /*Image(
-                painter = painterResource(restaurant.imageRes),
-                contentDescription = restaurant.name,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen
-                    },
-                contentScale = ContentScale.Crop
-            )*/
-            AsyncImage(
-                model = restaurant.imageRes ?:"https://dynamic-media-cdn.tripadvisor.com/media/photo-o/19/e3/1a/75/la-mere-jean.jpg?w=500&h=-1&s=1",
-                contentDescription = restaurant.name,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen
-                    },
-                contentScale = ContentScale.Crop
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                AsyncImage(
+                    model = restaurant.imageRes ?: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/19/e3/1a/75/la-mere-jean.jpg?w=500&h=-1&s=1",
+                    contentDescription = restaurant.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen },
+                    contentScale = ContentScale.Crop
+                )
+
+                // Bouton retour
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(10.dp)
+                        .size(40.dp)
+                        .clipToBounds()
+                        .background(
+                            color = Color(0x66000000),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Retour",
+                        tint = Color.White
+                    )
+                }
+            }
         }
 
-        // Details section
+        // Détails
         Column(
             modifier = Modifier
                 .weight(0.75f)
@@ -141,7 +146,6 @@ fun RestaurantDetailContent(
                         Text(text = restaurant.address, fontSize = 16.sp)
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    // Afficher le rating si disponible
                     restaurant.rating?.let { rating ->
                         Text(
                             text = "★ $rating/5",
@@ -174,9 +178,8 @@ fun RestaurantDetailContent(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tags
             restaurant.tags?.let {
-                LazyRow(//Mochkil
+                LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.padding(vertical = 8.dp)
                 ) {
@@ -193,7 +196,6 @@ fun RestaurantDetailContent(
                 }
             }
 
-            // Description si disponible
             restaurant.description?.let { desc ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -206,7 +208,6 @@ fun RestaurantDetailContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Map
             OSMRestaurantMap(
                 latitude = restaurant.latitude,
                 longitude = restaurant.longitude,

@@ -14,12 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.benakmoume_yahi.Auth.AuthViewModel
 import com.example.benakmoume_yahi.navigation.AppRoute
-import com.example.benakmoume_yahi.remote.RetrofitInstance
 import com.example.benakmoume_yahi.viewmodel.ChooseCuisineViewModel
-import com.example.benakmoume_yahi.models.UserCreate
-import com.example.benakmoume_yahi.models.UserUpdate
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -35,8 +31,6 @@ fun ChooseCuisineScreen(
     val cuisines = uiState.areas
     val isFromProfile = from == AppRoute.ChooseCategory.FROM_PROFILE
 
-    val authVm: AuthViewModel = viewModel()
-    val uid = authVm.state.collectAsState().value.user?.uid
     val scope = rememberCoroutineScope()
     var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -136,75 +130,38 @@ fun ChooseCuisineScreen(
             Spacer(Modifier.height(16.dp))
 
             fun saveAndNavigate(onDone: () -> Unit) {
-                if (uid.isNullOrBlank()) {
-                    onDone()
-                    return
-                }
                 scope.launch {
                     saving = true
                     error = null
                     try {
-                        // CSV conforme à l'API (string | null)
-                        val cuisinesCsv: String? = uiState.selectedAreas
-                            .map { it.toString().trim() }
-                            .filter { it.isNotEmpty() }
-                            .joinToString(",")
-                            .ifBlank { null }
-
-                        // Essayer d'abord une mise à jour (PUT) avec UserUpdate
-                        val update = UserUpdate(areas_preferred = cuisinesCsv)
-                        val put = RetrofitInstance.api.updateUser(uid, update)
-                        if (!put.isSuccessful) {
-                            if (put.code() == 404) {
-                                // Fallback: création (POST) avec UserCreate complet
-                                val user = authVm.state.value.user
-                                val first = user?.displayName?.substringBefore(" ")
-                                    ?.takeIf { !it.isNullOrBlank() } ?: "User"
-                                val last = user?.displayName?.substringAfter(" ", missingDelimiterValue = "")
-                                    ?.ifBlank { " " } ?: " "
-                                val mail = user?.email ?: "user@example.com"
-
-                                val create = UserCreate(
-                                    firstname = first,
-                                    lastname = last,
-                                    email = mail,
-                                    areas_preferred = cuisinesCsv,
-                                    preferred_categories = null,
-                                    photo_profile = null,
-                                    firebase_uid = uid
-                                )
-                                val post = RetrofitInstance.api.createUser(create)
-                                if (!post.isSuccessful) {
-                                    error = "Erreur création (${post.code()})"
-                                    return@launch
-                                }
-                            } else {
-                                error = "Erreur de sauvegarde (${put.code()})"
-                                return@launch
-                            }
-                        }
-                        onDone()
+                        viewModel.persistSelection(
+                            onDone = { onDone() },
+                            onError = { msg -> error = msg }
+                        )
                     } catch (e: Exception) {
-                        error = e.message ?: "Erreur réseau"
+                        error = e.message ?: "Erreur DataStore"
                     } finally {
                         saving = false
                     }
                 }
             }
 
+            val enabled = uiState.selectedAreas.isNotEmpty() && !uiState.isLoading && uiState.error == null && !saving
+
             if (!isFromProfile) {
                 Button(
                     onClick = {
-                        navController.currentBackStackEntry
-                            ?.savedStateHandle
+                        // Passage de données entre écrans si utile
+                        navController.currentBackStackEntry?.savedStateHandle
                             ?.set("selected_cuisines", uiState.selectedAreas.toList())
+
                         saveAndNavigate {
                             navController.navigate(
                                 AppRoute.ChooseCategory.createRoute(AppRoute.ChooseCategory.FROM_SIGNUP)
                             ) { launchSingleTop = true }
                         }
                     },
-                    enabled = uiState.selectedAreas.isNotEmpty() && !uiState.isLoading && uiState.error == null && !saving,
+                    enabled = enabled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -220,7 +177,7 @@ fun ChooseCuisineScreen(
             } else {
                 Button(
                     onClick = { saveAndNavigate { navController.popBackStack() } },
-                    enabled = uiState.selectedAreas.isNotEmpty() && !uiState.isLoading && uiState.error == null && !saving,
+                    enabled = enabled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),

@@ -1,23 +1,8 @@
 package com.example.benakmoume_yahi.remote
 
-import com.example.benakmoume_yahi.models.AreasResponse
-import com.example.benakmoume_yahi.models.CategoriesResponse
-import com.example.benakmoume_yahi.models.DeleteFavoriteResponse
-import com.example.benakmoume_yahi.models.FavoriteCheckResponse
-import com.example.benakmoume_yahi.models.FavoriteItem
-import com.example.benakmoume_yahi.models.Recipe
-import com.example.benakmoume_yahi.models.RecipeCommentCreate
-import com.example.benakmoume_yahi.models.RecipeCommentWithUser
-import com.example.benakmoume_yahi.models.Restaurant
-import com.example.benakmoume_yahi.models.UserCreate
-import com.example.benakmoume_yahi.models.UserUpdate
+import com.example.benakmoume_yahi.models.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface RecipeApiService {
 
@@ -44,7 +29,7 @@ interface RecipeApiService {
     @GET("restaurants/{restaurant_id}")
     suspend fun getRestaurantById(@Path("restaurant_id") restaurantId: Int): Response<Restaurant>
 
-    // ===== Taxonomies (catalogue) =====
+    // ===== Taxonomies =====
     @GET("categories")
     suspend fun getCategories(): Response<CategoriesResponse>
 
@@ -92,7 +77,7 @@ interface RecipeApiService {
         @Path("comment_id") commentId: Int
     ): Response<Void>
 
-    // ===== Users (PUT/GET/POST) =====
+    // ===== Users DTO (CSV) =====
     @PUT("users/{firebase_uid}")
     suspend fun updateUser(
         @Path("firebase_uid") uid: String,
@@ -104,4 +89,16 @@ interface RecipeApiService {
 
     @POST("users")
     suspend fun createUser(@Body body: UserCreate): Response<Unit>
+
+    // ===== Users dynamiques (Map, sans null) =====
+    @PUT("users/{firebase_uid}")
+    suspend fun updateUserDynamic(
+        @Path("firebase_uid") uid: String,
+        @Body body: Map<String, @JvmSuppressWildcards Any>
+    ): Response<Unit>
+
+    @POST("users")
+    suspend fun createUserDynamic(
+        @Body body: Map<String, @JvmSuppressWildcards Any>
+    ): Response<Unit>
 }

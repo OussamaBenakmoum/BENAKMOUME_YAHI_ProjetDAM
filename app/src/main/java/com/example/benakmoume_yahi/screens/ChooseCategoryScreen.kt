@@ -1,5 +1,6 @@
 package com.example.benakmoume_yahi.screens
 
+import android.R.attr.enabled
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ fun ChooseCategoryScreen(
     val mainColor = Color(0xFFFF6E41)
     val uiState = viewModel.uiState
     val isFromProfile = from == AppRoute.ChooseCategory.FROM_PROFILE
+    val enabled = !uiState.isLoading && uiState.error == null
 
     Scaffold(
         topBar = {
@@ -113,37 +115,41 @@ fun ChooseCategoryScreen(
                 // Onboarding → Continuer vers Landing
                 Button(
                     onClick = {
-                        // TODO: persister uiState.selectedCategories si nécessaire
-                        navController.navigate(AppRoute.Landing.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        viewModel.persistSelection(
+                            onDone = {
+                                navController.navigate(AppRoute.Landing.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            onError = { /* afficher un Snackbar/texte d'erreur si besoin */ }
+                        )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = mainColor),
-                    enabled = !uiState.isLoading
-                ) {
-                    Text("Continuer", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                    enabled = enabled
+                ) { Text("Continuer", color = Color.White, style = MaterialTheme.typography.titleMedium)
                 }
             } else {
                 // Profil → Terminer (retour)
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = {
+                        viewModel.persistSelection(
+                            onDone = { navController.popBackStack() },
+                            onError = { /* afficher erreur locale si besoin */ }
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = mainColor),
-                    enabled = !uiState.isLoading
-                ) {
-                    Text("Terminer", color = Color.White, style = MaterialTheme.typography.titleMedium)
-                }
+                    enabled = enabled
+                ) { Text("Terminer", color = Color.White, style = MaterialTheme.typography.titleMedium) }
             }
 
             Spacer(Modifier.height(16.dp))

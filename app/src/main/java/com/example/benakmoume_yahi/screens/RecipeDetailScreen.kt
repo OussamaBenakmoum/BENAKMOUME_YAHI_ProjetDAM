@@ -103,53 +103,64 @@ fun RecipeDetailScreen(
             viewModel.loadRecipeById(mealId)
             isFavorite = viewModel.isRecipeFavorite(
                 currentUser?.uid ?:"",
-                idMeal =  mealId)//isRecipeFavorite("pSgIsaYVwWY32kq5HFuuTio06332", "52772")
+                idMeal =  mealId)
         } else {
-            //viewModel.loadRandomRecipe()
             viewModel.loadRecipeById("53085")
-
         }
     }
 
-    // Récupérer le nom de la recette depuis l'API
+    // Récupérer infos recette
     val recipeId = when (val state = uiState) {
         is RecipeUiState.Success -> state.recipe.id_meal
-        else -> "null" // Valeur par défaut
+        else -> "null"
     }
-
     val recipeName = when (val state = uiState) {
         is RecipeUiState.Success -> state.recipe.name
-        else -> "Java corn with peanut sauce" // Valeur par défaut
+        else -> "Java corn with peanut sauce"
     }
-
     val recipeYoutubeUrl = when (val state = uiState) {
         is RecipeUiState.Success -> state.recipe.youtube_url
         else -> null
     }
-
     val recipeImageUrl = when (val state = uiState) {
         is RecipeUiState.Success -> state.recipe.image_url
         else -> null
     }
-
     val ingredientsList = when (val state = uiState) {
         is RecipeUiState.Success -> state.recipe.ingredients
         else -> ingredients
     }
-
     val instructionsList = when (val state = uiState) {
         is RecipeUiState.Success -> state.recipe.instructions
         else -> listOf(stringInstruction, stringInstruction, stringInstruction)
     }
 
-
-
-    Column(modifier = Modifier.fillMaxSize().padding(0.dp, 0.dp, 0.dp, 0.dp))
-    {
-        Column(modifier = Modifier.fillMaxWidth().weight(0.25f))
-        {
+    Column(modifier = Modifier.fillMaxSize().padding(0.dp)) {
+        // Bandeau image / vidéo + bouton Retour superposé (Option 1)
+        Column(modifier = Modifier.fillMaxWidth().weight(0.25f)) {
             if (showPlayer && hasInternet(context)) {
-                YouTubePlayer(videoId = recipeYoutubeUrl?:"k9Ez0bUbXKc")
+                Box(modifier = Modifier.fillMaxSize()) {
+                    YouTubePlayer(videoId = recipeYoutubeUrl?:"k9Ez0bUbXKc")
+
+                    // Back button (overlay)
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(10.dp)
+                            .size(40.dp)
+                            .background(
+                                color = Color(0x66000000),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Retour",
+                            tint = Color.White
+                        )
+                    }
+                }
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
 
@@ -218,12 +229,31 @@ fun RecipeDetailScreen(
                         )
                     }
 
+                    // Back button (overlay)
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(10.dp)
+                            .size(40.dp)
+                            .background(
+                                color = Color(0x66000000),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Retour",
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }
+
+        // Bloc infos recette + favoris + stats
         Column(modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.14f)) {
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp))
-            {
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)) {
                 Text(
                     text = recipeName,
                     fontSize = 24.sp,
@@ -234,48 +264,25 @@ fun RecipeDetailScreen(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp)
-                )
-                {
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            showOrderBottomSheet = true
-                        })
-                    {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rate Receipt",
-                            tint = Color(0xFFFF6E41),
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rate Receipt",
-                            tint = Color(0xFFFF6E41),
-                            modifier = Modifier.size(18.dp),
-
+                        modifier = Modifier.clickable { showOrderBottomSheet = true }
+                    ) {
+                        repeat(4) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Rate Receipt",
+                                tint = Color(0xFFFF6E41),
+                                modifier = Modifier.size(18.dp),
                             )
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rate Receipt",
-                            tint = Color(0xFFFF6E41),
-                            modifier = Modifier.size(18.dp),
-
-                            )
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rate Receipt",
-                            tint = Color(0xFFFF6E41),
-                            modifier = Modifier.size(18.dp),
-
-                            )
+                        }
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "Rate Receipt",
                             tint = Color.Gray,
                             modifier = Modifier.size(18.dp),
-
-                            )
+                        )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(comments.size.toString() + " Avis", color = Color.Gray)
                     }
@@ -303,41 +310,33 @@ fun RecipeDetailScreen(
                             }
                         }
                     ) {
-
                         Icon(
                             imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Ajouter aux favoris",
                             tint = Color(0xFFFF6E41),
                             modifier = Modifier.size(18.dp),
                         )
-
                         Text(" Favori", color = Color.Gray)
                     }
-
                 }
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
-            )
-            {
-                Column()
-                {
+            ) {
+                Column {
                     Text("Temps Prep", fontSize = 13.sp, color = Color.Gray)
                     Text("45 min", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
-                Column()
-                {
+                Column {
                     Text("Temps Cuison", fontSize = 13.sp, color = Color.Gray)
                     Text("10 min", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
-                Column()
-                {
+                Column {
                     Text("Cuite", fontSize = 13.sp, color = Color.Gray)
                     Text("9.5K", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
-                Column()
-                {
+                Column {
                     Text("Niveau", fontSize = 13.sp, color = Color.Gray)
                     Text("Facile", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
@@ -350,10 +349,8 @@ fun RecipeDetailScreen(
                 .height(1.dp),
             thickness = DividerDefaults.Thickness, color = Color(0xFFcfcfcf)
         )
-        Box(modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.5f))
-        {
-            Column(modifier = Modifier/*.weight(0.5f).*/.verticalScroll(scrollState))
-            {
+        Box(modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth().weight(0.5f)) {
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 SecondaryTabRow(
@@ -367,11 +364,8 @@ fun RecipeDetailScreen(
                             color = Color.White
                         )
                     },
-                    divider = {
-                        Divider(color = Color.White, thickness = 0.dp)
-                    }
-                )
-                {
+                    divider = { Divider(color = Color.White, thickness = 0.dp) }
+                ) {
                     tabTitles.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
@@ -381,7 +375,7 @@ fun RecipeDetailScreen(
                                 modifier = Modifier
                                     .background(
                                         if (selectedTab == index) Color(0xffFFF1EC) else Color.Transparent,
-                                        shape = RoundedCornerShape(50) // optional: rounded background
+                                        shape = RoundedCornerShape(50)
                                     )
                                     .padding(horizontal = 16.dp, vertical = 6.dp)
                             ) {
@@ -394,14 +388,9 @@ fun RecipeDetailScreen(
                         }
                     }
                 }
-                when (selectedTab)
-                {
+                when (selectedTab) {
                     0 -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        )
-                        {
+                        Column(modifier = Modifier.fillMaxWidth()) {
                             ingredientsList.forEach { ingredient ->
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -409,7 +398,6 @@ fun RecipeDetailScreen(
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
                                 ) {
-
                                     AsyncImage(
                                         model = ingredient.image_url,
                                         contentDescription = ingredient.name,
@@ -417,7 +405,6 @@ fun RecipeDetailScreen(
                                             .size(38.dp)
                                             .padding(end = 8.dp)
                                     )
-                                    // Texte quantité et nom
                                     Text(
                                         text = "${ingredient.measure} ${ingredient.name}",
                                         color = Color.Black
@@ -425,31 +412,22 @@ fun RecipeDetailScreen(
                                 }
                             }
                         }
-
                     }
                     1 -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                            //.verticalScroll(scrollState)
-                        )
-                        {
+                        Column(modifier = Modifier.fillMaxSize()) {
                             instructionsList.forEach { element ->
                                 InstructionCard(element)
                             }
-
                         }
                     }
                     2 -> {
-                        if (comments.isEmpty())
-                        {
+                        if (comments.isEmpty()) {
                             Text("Aucun commentaire disponible", modifier = Modifier.padding(16.dp))
-                        }
-                        else
-                        {
+                        } else {
                             comments.forEach { element ->
-
-                                ReviewCard(element, currentUser?.uid == element.firebase_uid,
+                                ReviewCard(
+                                    element,
+                                    currentUser?.uid == element.firebase_uid,
                                     onDelete = { commentId ->
                                         coroutineScope.launch {
                                             val success = viewModel.deleteComment(
@@ -462,7 +440,6 @@ fun RecipeDetailScreen(
                                                     "Commentaire supprimé",
                                                     Toast.LENGTH_SHORT
                                                 ).show()
-                                                // Recharge la liste des commentaires ou supprime localement
                                                 viewModel.loadComments(element.id_meal)
                                             } else {
                                                 Toast.makeText(
@@ -473,16 +450,11 @@ fun RecipeDetailScreen(
                                             }
                                         }
                                     }
-                                    )
-
-
-
+                                )
                             }
                         }
                     }
                 }
-
-
             }
 
             OrderBottomSheet()
@@ -495,8 +467,6 @@ fun RecipeDetailScreen(
                     sheetState = ratingSheetState,
                     onDismissRequest = { showOrderBottomSheet = false }
                 ) {
-
-                    // Title
                     Text(
                         text = "Aimez vous cette vidéo de recette?",
                         modifier = Modifier
@@ -505,9 +475,7 @@ fun RecipeDetailScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
-                    // Spacer
                     Spacer(Modifier.height(16.dp))
-                    // Stars
                     Row(
                         Modifier
                             .align(Alignment.CenterHorizontally)
@@ -525,7 +493,6 @@ fun RecipeDetailScreen(
                         }
                     }
                     Spacer(Modifier.height(10.dp))
-                    // Review text field
                     OutlinedTextField(
                         value = reviewText,
                         onValueChange = { reviewText = it },
@@ -538,7 +505,6 @@ fun RecipeDetailScreen(
                         maxLines = 5
                     )
                     Spacer(Modifier.height(24.dp))
-                    // Give Review Button
                     Button(
                         onClick = {
                             coroutineScope.launch {
@@ -551,11 +517,10 @@ fun RecipeDetailScreen(
                                     val success = viewModel.postComment(currentUser?.uid ?: "", comment)
                                     if (success) {
                                         Toast.makeText(context, "Commentaire envoyé", Toast.LENGTH_SHORT).show()
-                                        reviewText = ""           // reset textarea
-                                        selectedRating = 2        // reset étoiles si voulu
+                                        reviewText = ""
+                                        selectedRating = 2
                                         showOrderBottomSheet = false
                                         viewModel.loadComments(comment.id_meal)
-
                                     } else {
                                         Toast.makeText(context, "Erreur lors de l'envoi", Toast.LENGTH_SHORT).show()
                                     }
@@ -563,7 +528,6 @@ fun RecipeDetailScreen(
                                     Toast.makeText(context, "Utilisateur ou recette non trouvée", Toast.LENGTH_SHORT).show()
                                 }
                             }
-
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -576,7 +540,6 @@ fun RecipeDetailScreen(
                     ) {
                         Text("Donner l'avis")
                     }
-                    // Maybe Later
                     TextButton(
                         onClick = { showOrderBottomSheet = false },
                         modifier = Modifier
@@ -587,7 +550,6 @@ fun RecipeDetailScreen(
                     Spacer(Modifier.height(16.dp))
                 }
             }
-
         }
     }
 }
